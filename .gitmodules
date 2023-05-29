@@ -1,4 +1,4 @@
 [submodule "portal"]
 	path = portal
 	url = https://github.com/kesompochy/cto-a-isucon-portal
-        master
+        branch = master
