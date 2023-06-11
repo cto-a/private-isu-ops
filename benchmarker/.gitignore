@@ -1,2 +1,4 @@
 *.test
 bin/
+userdata/img/
+userdata/img.zip
