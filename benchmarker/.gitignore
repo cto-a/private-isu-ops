@@ -1,3 +1,6 @@
+**/*/.terraform
+terraform/.aws
+
 *.test
 bin/
 userdata/img/
