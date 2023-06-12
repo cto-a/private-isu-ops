@@ -1,2 +1,7 @@
 **/*/.terraform
 terraform/.aws
+
+*.test
+bin/
+userdata/img/
+userdata/img.zip
