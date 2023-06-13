@@ -3,17 +3,12 @@
         "name": "benchmarker-container",
         "image": "nginx:latest",
         "essential": true,
-        "environment": [
-            {
-                "name": "SQS_QUEUE_URL",
-                "value": "${aws_sqs_queue.benchmark_sqs_queue.url}"
-            }
-        ],
         "logConfiguration": {
             "logDriver": "awslogs",
             "options": {
                 "awslogs-region": "ap-northeast-1",
-                "awslogs-stream-prefix": "benchmarker",
+                "awslogs-create-group": "true",
+                "awslogs-stream-prefix": "ecs",
                 "awslogs-group": "/ecs/benchmarker"
             }
         },
@@ -21,6 +16,12 @@
             {
                 "protocol": "tcp",
                 "containerPort": 80
+            }
+        ],
+        "environment": [
+            {
+                "name": "SQS_QUEUE_URL",
+                "value": "${aws_sqs_queue.benchmark_sqs_queue.url}"
             }
         ]
     }
