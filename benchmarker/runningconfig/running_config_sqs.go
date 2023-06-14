@@ -16,16 +16,6 @@ func NewRunningConfigImple(sqs *sqs.SQS, sqsUrl string) RunningConfigRepository 
 	return &RunningConfigRepositoryImple{SQS: sqs, sqsUrl: sqsUrl}
 }
 
-func GetQueueURL(s *sqs.SQS, queue string) (*sqs.GetQueueUrlOutput, error) {
-	result, err := s.GetQueueUrl(&sqs.GetQueueUrlInput{
-		QueueName: &queue,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
 func DeleteMessage(s *sqs.SQS, queueUrl string, messageHandle *string) error {
 	_, err := s.DeleteMessage(&sqs.DeleteMessageInput{
 		QueueUrl:      &queueUrl,
@@ -47,6 +37,7 @@ func GetMessages(s *sqs.SQS, queueUrl string, maxMessages int) (*sqs.ReceiveMess
 	return msgResult, nil
 }
 
+// delete queueは別で分けてもいいが一旦雑に同一関数に実装
 func (r *RunningConfigRepositoryImple) GetRunningConfig() (RunningConfig, error) {
 	// デバッグ用
 	// msgJson, err := json.Marshal(RunningConfig{
@@ -69,13 +60,11 @@ func (r *RunningConfigRepositoryImple) GetRunningConfig() (RunningConfig, error)
 	if err != nil {
 		return RunningConfig{}, err
 	}
-
 	var item RunningConfig
 	err = json.Unmarshal([]byte(*msgRes.Messages[0].Body), &item)
 	if err != nil {
 		return RunningConfig{}, err
 	}
-
 	receiptHandle := msgRes.Messages[0].ReceiptHandle
 	err = DeleteMessage(r.SQS, r.sqsUrl, receiptHandle)
 	if err != nil {
