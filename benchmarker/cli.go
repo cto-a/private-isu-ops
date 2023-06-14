@@ -1,15 +1,17 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/catatsuy/private-isu/benchmarker/checker"
+	"github.com/catatsuy/private-isu/benchmarker/output"
 	"github.com/catatsuy/private-isu/benchmarker/runningconfig"
 	"github.com/catatsuy/private-isu/benchmarker/score"
 	"github.com/catatsuy/private-isu/benchmarker/util"
@@ -40,16 +42,23 @@ type user struct {
 	Password    string
 }
 
-type Output struct {
-	Pass     bool     `json:"pass"`
-	Score    int64    `json:"score"`
-	Suceess  int64    `json:"success"`
-	Fail     int64    `json:"fail"`
-	Messages []string `json:"messages"`
-}
-
 // Run invokes the CLI with the given arguments.
 func (cli *CLI) Run(args []string) int {
+
+	// APP_SYNC_API_KEYが設定されているかチェック
+	apiKey := os.Getenv("APP_SYNC_API_KEY")
+	if apiKey == "" {
+		log.Println("APP_SYNC_API_KEY is not set")
+		return ExitCodeError
+	}
+
+	endPointUrl := os.Getenv("APP_SYNC_ENDPOINT_URL")
+	if endPointUrl == "" {
+		log.Println("APP_SYNC_ENDPOINT_URL is not set")
+		// defaultでエンドポイントを指定しておく
+		endPointUrl = "https://6bqrafkynnbbzgkticdkxuawki.appsync-api.ap-northeast-1.amazonaws.com/graphql"
+	}
+
 	var (
 		target   string
 		userdata string
@@ -57,14 +66,14 @@ func (cli *CLI) Run(args []string) int {
 		benchmarkTimeout time.Duration
 		waitAfterTimeout time.Duration
 
-		version         bool
-		debug           bool
-		runningConfig   runningconfig.RunningConfigRepository
-		scoreRepository score.ScoreRepository
+		version          bool
+		debug            bool
+		runningConfig    runningconfig.RunningConfigRepository
+		outputRepository output.OutputRepository
 	)
 
 	runningConfig = &runningconfig.RunningConfigRepositoryImple{}
-	scoreRepository = &score.ScoreRepositoryImple{}
+	outputRepository = output.NewOutputRepositoryImple(apiKey, endPointUrl)
 
 	config, err := runningConfig.GetRunningConfig()
 	if err != nil {
@@ -105,7 +114,8 @@ func (cli *CLI) Run(args []string) int {
 
 	targetHost, err := checker.SetTargetHost(target)
 	if err != nil {
-		outputNeedToContactUs(err.Error())
+		output := formatResultJSON(false, []string{"主催者に連絡してください"})
+		outputRepository.SaveOutput("1", &output)
 		return ExitCodeError
 	}
 
@@ -115,15 +125,16 @@ func (cli *CLI) Run(args []string) int {
 
 	users, _, adminUsers, sentences, images, err := prepareUserdata(userdata)
 	if err != nil {
-		outputNeedToContactUs(err.Error())
+		output := formatResultJSON(false, []string{"主催者に連絡してください"})
+		outputRepository.SaveOutput("1", &output)
 		return ExitCodeError
 	}
 
 	initReq := <-initialize
 
 	if !initReq {
-		fmt.Println(outputResultJSON(false, []string{"初期化リクエストに失敗しました"}))
-
+		output := formatResultJSON(false, []string{"初期化リクエストに失敗しました"})
+		outputRepository.SaveOutput("1", &output)
 		return ExitCodeError
 	}
 
@@ -138,7 +149,8 @@ func (cli *CLI) Run(args []string) int {
 	banScenario(checker.NewSession(), checker.NewSession(), randomUser(users), randomUser(adminUsers), randomImage(images), randomSentence(sentences))
 
 	if score.GetInstance().GetFails() > 0 {
-		fmt.Println(outputResultJSON(false, score.GetFailErrorsStringSlice()))
+		output := formatResultJSON(false, score.GetFailErrorsStringSlice())
+		outputRepository.SaveOutput("1", &output)
 		return ExitCodeError
 	}
 
@@ -208,29 +220,21 @@ L:
 		msgs = score.GetFailRawErrorsStringSlice()
 	}
 
-	fmt.Println(outputResultJSON(true, msgs))
-	scoreRepository.SaveScore(score.GetInstance())
+	output := formatResultJSON(true, msgs)
+	outputRepository.SaveOutput("1", &output)
 
 	return ExitCodeOK
 }
 
-func outputResultJSON(pass bool, messages []string) string {
-	output := Output{
+func formatResultJSON(pass bool, messages []string) output.Output {
+	output := output.Output{
 		Pass:     pass,
 		Score:    score.GetInstance().GetScore(),
 		Suceess:  score.GetInstance().GetSucesses(),
 		Fail:     score.GetInstance().GetFails(),
 		Messages: messages,
 	}
-
-	b, _ := json.Marshal(output)
-
-	return string(b)
-}
-
-// 主催者に連絡して欲しいエラー
-func outputNeedToContactUs(message string) {
-	fmt.Println(outputResultJSON(false, []string{"！！！主催者に連絡してください！！！", message}))
+	return output
 }
 
 func makeChanBool(len int) chan bool {
