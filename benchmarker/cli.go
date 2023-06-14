@@ -10,6 +10,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/catatsuy/private-isu/benchmarker/checker"
 	"github.com/catatsuy/private-isu/benchmarker/output"
 	"github.com/catatsuy/private-isu/benchmarker/runningconfig"
@@ -44,11 +47,30 @@ type user struct {
 
 // Run invokes the CLI with the given arguments.
 func (cli *CLI) Run(args []string) int {
+	// optionはlocalの環境を見ているので要相談
+	sess := session.Must(session.NewSessionWithOptions(
+		session.Options{
+			Config: aws.Config{
+				Region: aws.String("ap-northeast-1"),
+			},
+			Profile:           "cto-a",
+			SharedConfigState: session.SharedConfigEnable,
+		}),
+	)
+
+	// SQSのクライアントを作成
+	sqsSvc := sqs.New(sess)
 
 	// APP_SYNC_API_KEYが設定されているかチェック
 	apiKey := os.Getenv("APP_SYNC_API_KEY")
 	if apiKey == "" {
 		log.Println("APP_SYNC_API_KEY is not set")
+		return ExitCodeError
+	}
+
+	sqsUrl := os.Getenv("SQS_URL")
+	if sqsUrl == "" {
+		log.Println("SQS_URL is not set")
 		return ExitCodeError
 	}
 
@@ -72,7 +94,7 @@ func (cli *CLI) Run(args []string) int {
 		outputRepository output.OutputRepository
 	)
 
-	runningConfig = &runningconfig.RunningConfigRepositoryImple{}
+	runningConfig = runningconfig.NewRunningConfigImple(sqsSvc, sqsUrl)
 	outputRepository = output.NewOutputRepositoryImple(apiKey, endPointUrl)
 
 	config, err := runningConfig.GetRunningConfig()
@@ -80,7 +102,7 @@ func (cli *CLI) Run(args []string) int {
 		fmt.Fprintf(cli.errStream, "Failed to get running config: %s\n", err)
 		return ExitCodeError
 	}
-	target = config.Target
+	target = config.TargetAddress
 
 	// Define option flag parse
 	flags := flag.NewFlagSet(Name, flag.ContinueOnError)
@@ -221,7 +243,7 @@ L:
 	}
 
 	output := formatResultJSON(true, msgs)
-	outputRepository.SaveOutput("1", &output)
+	outputRepository.SaveOutput(string(config.TeamID), &output)
 
 	return ExitCodeOK
 }

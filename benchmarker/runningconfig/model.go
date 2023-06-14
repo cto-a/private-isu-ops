@@ -1,5 +1,6 @@
 package runningconfig
 
 type RunningConfig struct {
-	Target string
+	TargetAddress string `json:"target_address"`
+	TeamID        int64  `json:"team_id"`
 }
