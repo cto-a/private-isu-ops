@@ -130,7 +130,7 @@ resource "aws_route_table_association" "private_c" {
 # Elastic IP
 ####################################################
 resource "aws_eip" "nat_eip_a" {
-  vpc        = true
+  domain     = "vpc"
   depends_on = [aws_internet_gateway.igw]
 
   tags = {
@@ -139,7 +139,7 @@ resource "aws_eip" "nat_eip_a" {
 }
 
 resource "aws_eip" "nat_eip_c" {
-  vpc        = true
+  domain     = "vpc"
   depends_on = [aws_internet_gateway.igw]
 
   tags = {
