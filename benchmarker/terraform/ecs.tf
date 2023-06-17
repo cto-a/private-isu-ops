@@ -47,9 +47,9 @@ resource "aws_ecs_service" "ecs_service" {
 
   # Fargateの場合、デプロイのたびにタスク定義が更新される
   # `terraform plan` で差分が出るため、初回のリソース作成時を除き変更を無視する
-  lifecycle {
-    ignore_changes = [task_definition]
-  }
+  # lifecycle {
+  #   ignore_changes = [task_definition]
+  # }
 }
 
 resource "aws_iam_role" "ecs_task_execution_role" {
@@ -71,9 +71,55 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 EOF
 }
 
+resource "aws_iam_policy" "ecs_task_execution_role_policy" {
+  name   = "ecs-task-execution-role-policy"
+  policy = <<-EOS
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:CreateLogGroup"
+            ],
+            "Resource": "*"
+        }
+    ]
+  }
+  EOS
+}
+
+resource "aws_iam_policy" "ssm_policy" {
+  name   = "ecs-task-execution-ssm-policy"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "ssm:GetParameters",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_ssm_policy" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = aws_iam_policy.ssm_policy.arn
+}
+
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  policy_arn = aws_iam_policy.ecs_task_execution_role_policy.arn
+  # policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
 resource "aws_cloudwatch_log_group" "ecs_log" {
