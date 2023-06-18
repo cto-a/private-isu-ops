@@ -99,8 +99,9 @@ export const handler = async (event) => {
 
     // CloudTaskの起動
     try {
+	console.log("run task")
         const data = await runTask()
-        console.log(data)
+        console.log("run task result : " + JSON.stringify(data))
     } catch (e) {
         console.error(e)
         return {
