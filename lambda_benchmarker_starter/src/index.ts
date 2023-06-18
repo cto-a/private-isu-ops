@@ -1,5 +1,5 @@
 import { SQS, SendMessageCommand } from "@aws-sdk/client-sqs"
-import { ECSClient, RunTaskCommand, RunTaskCommandInput } from '@aws-sdk/client-ecs';
+import { ECSClient, RunTaskCommand, RunTaskCommandInput } from "@aws-sdk/client-ecs"
 import https from "https"
 import { setTimeout } from "timers/promises"
 
@@ -21,12 +21,25 @@ const fetchRunningDataFromGoogleSpreadSheet = async (url: string) => {
     return data
 }
 
+/**
+ * ECSのタスクを起動する
+ * 
+ * @returns 
+ */
 const runTask = async () => {
+	// TODO: ここ環境変数経由にして
     const input: RunTaskCommandInput = {
-	cluster: "benchmarker-ecs-cluster",
-	taskDefinition: "benchmarker-ecs-task-definition:17",
+        cluster: "benchmarker-ecs-cluster",
+        taskDefinition: "benchmarker-ecs-task-definition:17",
         launchType: "FARGATE",
         count: 1,
+        networkConfiguration: {
+            awsvpcConfiguration: {
+                subnets: ["subnet-0e9f7dc40731fa66e","subnet-0085c0cba3fe14950","subnet-0f56d048fc3dd87cc","subnet-040871c6dc7f81913"],
+                securityGroups: ["sg-0a6c2f0cae8fdc322"],
+                assignPublicIp: "DISABLED",
+            },
+        },
     }
     const command = new RunTaskCommand(input)
     return await client.send(command)
@@ -86,14 +99,14 @@ export const handler = async (event) => {
 
     // CloudTaskの起動
     try {
-	const data = await runTask()
-	console.log(data)
-    } catch(e) {
-	console.error(e)
-	return {
-		statusCode: 500,
-		body: JSON.stringify(`Error :${e}`),
-	}
+        const data = await runTask()
+        console.log(data)
+    } catch (e) {
+        console.error(e)
+        return {
+            statusCode: 500,
+            body: JSON.stringify(`Error :${e}`),
+        }
     }
 
     const response = {
