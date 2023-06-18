@@ -1,4 +1,5 @@
-import { SQS, SendMessageCommand, ECSClient, RunTaskCommand, RunTaskCommandInput } from "@aws-sdk/client-sqs"
+import { SQS, SendMessageCommand } from "@aws-sdk/client-sqs"
+import { ECSClient, RunTaskCommand, RunTaskCommandInput } from '@aws-sdk/client-ecs';
 import https from "https"
 import { setTimeout } from "timers/promises"
 
