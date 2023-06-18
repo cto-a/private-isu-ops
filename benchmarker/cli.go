@@ -47,6 +47,7 @@ type user struct {
 
 // Run invokes the CLI with the given arguments.
 func (cli *CLI) Run(args []string) int {
+	log.Println("benchmaker start!")
 	// optionはlocalの環境を見ているので要相談
 	sess := session.Must(session.NewSessionWithOptions(
 		session.Options{
@@ -102,6 +103,8 @@ func (cli *CLI) Run(args []string) int {
 		fmt.Fprintf(cli.errStream, "Failed to get running config: %s\n", err)
 		return ExitCodeError
 	}
+	log.Println("config_file")
+	log.Println(config)
 	target = config.TargetAddress
 
 	// Define option flag parse
@@ -243,7 +246,10 @@ L:
 	}
 
 	output := formatResultJSON(true, msgs)
-	outputRepository.SaveOutput(string(config.TeamID), &output)
+	err = outputRepository.SaveOutput(string(config.TeamID), &output)
+	if err != nil {
+		log.Println(err)
+	}
 
 	return ExitCodeOK
 }
