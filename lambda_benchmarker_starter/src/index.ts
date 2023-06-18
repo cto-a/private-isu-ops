@@ -39,6 +39,10 @@ export const handler = async (event) => {
                 DataType: "String",
                 StringValue: targetIp,
             },
+	    teamId: {
+		DataType: "Number",
+		StringValue: teamId,
+	    }
         },
         MessageBody: "TESTです。",
         QueueUrl: queueUrl,
