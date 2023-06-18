@@ -41,17 +41,22 @@ func (r *OutputRepositoryImple) SaveOutput(teamId string, output *Output) error 
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("x-api-key", r.apiKey)
+	log.Println("appsync_request:" + r.apiKey + " " + url)
 
 	client := &http.Client{}
 
 	resp, err := client.Do(req)
 	if err != nil {
+		log.Println("error_request")
+		log.Println(err)
 		return err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		log.Println("error_read_body")
+		log.Println(err)
 		return err
 	}
 
