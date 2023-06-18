@@ -35,7 +35,7 @@ const runTask = async () => {
         count: 1,
         networkConfiguration: {
             awsvpcConfiguration: {
-                subnets: ["subnet-0e9f7dc40731fa66e","subnet-0085c0cba3fe14950","subnet-0f56d048fc3dd87cc","subnet-040871c6dc7f81913"],
+                subnets: ["subnet-0e9f7dc40731fa66e", "subnet-040871c6dc7f81913"],
                 securityGroups: ["sg-0a6c2f0cae8fdc322"],
                 assignPublicIp: "DISABLED",
             },
