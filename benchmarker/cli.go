@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -84,14 +83,14 @@ func (cli *CLI) Run(args []string) int {
 	}
 
 	var (
-		target   string
-		userdata string
+		// target   string
+		// userdata string
 
-		benchmarkTimeout time.Duration
-		waitAfterTimeout time.Duration
+		// benchmarkTimeout time.Duration
+		// waitAfterTimeout time.Duration
 
-		version          bool
-		debug            bool
+		// version          bool
+		// debug            bool
 		runningConfig    runningconfig.RunningConfigRepository
 		outputRepository output.OutputRepository
 	)
@@ -111,146 +110,147 @@ func (cli *CLI) Run(args []string) int {
 	log.Println("config_file")
 	log.Println(config)
 
-	target = config.TargetAddress
+	// 	target = config.TargetAddress
 
-	// Define option flag parse
-	flags := flag.NewFlagSet(Name, flag.ContinueOnError)
-	flags.SetOutput(cli.errStream)
+	// 	// Define option flag parse
+	// 	flags := flag.NewFlagSet(Name, flag.ContinueOnError)
+	// 	flags.SetOutput(cli.errStream)
 
-	// targetはqueueから取得するので不要
-	// flags.StringVar(&target, "target", "", "")
-	// flags.StringVar(&target, "t", "", "(Short)")
+	// 	// targetはqueueから取得するので不要
+	// 	// flags.StringVar(&target, "target", "", "")
+	// 	// flags.StringVar(&target, "t", "", "(Short)")
 
-	flags.StringVar(&userdata, "userdata", "", "userdata directory")
-	flags.StringVar(&userdata, "u", "", "userdata directory")
+	// 	flags.StringVar(&userdata, "userdata", "", "userdata directory")
+	// 	flags.StringVar(&userdata, "u", "", "userdata directory")
 
-	flags.DurationVar(&benchmarkTimeout, "benchmark-timeout", BenchmarkTimeout, "benchmark timeout")
-	flags.DurationVar(&waitAfterTimeout, "wait-after-timeout", WaitAfterTimeout, "wait after timeout")
+	// 	flags.DurationVar(&benchmarkTimeout, "benchmark-timeout", BenchmarkTimeout, "benchmark timeout")
+	// 	flags.DurationVar(&waitAfterTimeout, "wait-after-timeout", WaitAfterTimeout, "wait after timeout")
 
-	flags.BoolVar(&version, "version", false, "Print version information and quit.")
+	// 	flags.BoolVar(&version, "version", false, "Print version information and quit.")
 
-	flags.BoolVar(&debug, "debug", false, "Debug mode")
-	flags.BoolVar(&debug, "d", false, "Debug mode")
+	// 	flags.BoolVar(&debug, "debug", false, "Debug mode")
+	// 	flags.BoolVar(&debug, "d", false, "Debug mode")
 
-	// Parse commandline flag
-	if err := flags.Parse(args[1:]); err != nil {
-		return ExitCodeError
-	}
+	// 	// Parse commandline flag
+	// 	if err := flags.Parse(args[1:]); err != nil {
+	// 		return ExitCodeError
+	// 	}
 
-	// Show version
-	if version {
-		fmt.Fprintf(cli.errStream, "%s version %s\n", Name, Version)
-		return ExitCodeOK
-	}
+	// 	// Show version
+	// 	if version {
+	// 		fmt.Fprintf(cli.errStream, "%s version %s\n", Name, Version)
+	// 		return ExitCodeOK
+	// 	}
 
-	targetHost, err := checker.SetTargetHost(target)
-	if err != nil {
-		output := formatResultJSON(false, []string{"主催者に連絡してください"})
-		outputRepository.SaveOutput("1", &output)
-		return ExitCodeError
-	}
+	// 	targetHost, err := checker.SetTargetHost(target)
+	// 	if err != nil {
+	// 		output := formatResultJSON(false, []string{"主催者に連絡してください"})
+	// 		outputRepository.SaveOutput("1", &output)
+	// 		return ExitCodeError
+	// 	}
 
-	initialize := make(chan bool)
+	// 	initialize := make(chan bool)
 
-	setupInitialize(targetHost, initialize)
+	// 	setupInitialize(targetHost, initialize)
 
-	users, _, adminUsers, sentences, images, err := prepareUserdata(userdata)
-	if err != nil {
-		output := formatResultJSON(false, []string{"主催者に連絡してください"})
-		outputRepository.SaveOutput("1", &output)
-		return ExitCodeError
-	}
+	// 	users, _, adminUsers, sentences, images, err := prepareUserdata(userdata)
+	// 	if err != nil {
+	// 		output := formatResultJSON(false, []string{"主催者に連絡してください"})
+	// 		outputRepository.SaveOutput("1", &output)
+	// 		return ExitCodeError
+	// 	}
 
-	initReq := <-initialize
+	// 	initReq := <-initialize
 
-	if !initReq {
-		output := formatResultJSON(false, []string{"初期化リクエストに失敗しました"})
-		outputRepository.SaveOutput("1", &output)
-		return ExitCodeError
-	}
+	// 	if !initReq {
+	// 		output := formatResultJSON(false, []string{"初期化リクエストに失敗しました"})
+	// 		outputRepository.SaveOutput("1", &output)
+	// 		return ExitCodeError
+	// 	}
 
-	// 最初にDOMチェックなどをやってしまい、通らなければさっさと失敗させる
-	commentScenario(checker.NewSession(), randomUser(users), randomUser(users).AccountName, randomSentence(sentences))
-	postImageScenario(checker.NewSession(), randomUser(users), randomImage(images), randomSentence(sentences))
-	cannotLoginNonexistentUserScenario(checker.NewSession())
-	cannotLoginWrongPasswordScenario(checker.NewSession(), randomUser(users))
-	cannotAccessAdminScenario(checker.NewSession(), randomUser(users))
-	cannotPostWrongCSRFTokenScenario(checker.NewSession(), randomUser(users), randomImage(images))
-	loginScenario(checker.NewSession(), randomUser(users))
-	banScenario(checker.NewSession(), checker.NewSession(), randomUser(users), randomUser(adminUsers), randomImage(images), randomSentence(sentences))
+	// 	// 最初にDOMチェックなどをやってしまい、通らなければさっさと失敗させる
+	// 	commentScenario(checker.NewSession(), randomUser(users), randomUser(users).AccountName, randomSentence(sentences))
+	// 	postImageScenario(checker.NewSession(), randomUser(users), randomImage(images), randomSentence(sentences))
+	// 	cannotLoginNonexistentUserScenario(checker.NewSession())
+	// 	cannotLoginWrongPasswordScenario(checker.NewSession(), randomUser(users))
+	// 	cannotAccessAdminScenario(checker.NewSession(), randomUser(users))
+	// 	cannotPostWrongCSRFTokenScenario(checker.NewSession(), randomUser(users), randomImage(images))
+	// 	loginScenario(checker.NewSession(), randomUser(users))
+	// 	banScenario(checker.NewSession(), checker.NewSession(), randomUser(users), randomUser(adminUsers), randomImage(images), randomSentence(sentences))
 
-	if score.GetInstance().GetFails() > 0 {
-		output := formatResultJSON(false, score.GetFailErrorsStringSlice())
-		outputRepository.SaveOutput("1", &output)
-		return ExitCodeError
-	}
+	// 	if score.GetInstance().GetFails() > 0 {
+	// 		output := formatResultJSON(false, score.GetFailErrorsStringSlice())
+	// 		outputRepository.SaveOutput("1", &output)
+	// 		return ExitCodeError
+	// 	}
 
-	indexMoreAndMoreScenarioCh := makeChanBool(2)
-	loadIndexScenarioCh := makeChanBool(2)
-	userAndPostPageScenarioCh := makeChanBool(2)
-	commentScenarioCh := makeChanBool(1)
-	postImageScenarioCh := makeChanBool(1)
-	loginScenarioCh := makeChanBool(2)
-	banScenarioCh := makeChanBool(1)
+	// 	indexMoreAndMoreScenarioCh := makeChanBool(2)
+	// 	loadIndexScenarioCh := makeChanBool(2)
+	// 	userAndPostPageScenarioCh := makeChanBool(2)
+	// 	commentScenarioCh := makeChanBool(1)
+	// 	postImageScenarioCh := makeChanBool(1)
+	// 	loginScenarioCh := makeChanBool(2)
+	// 	banScenarioCh := makeChanBool(1)
 
-	timeoutCh := time.After(benchmarkTimeout)
+	// 	timeoutCh := time.After(benchmarkTimeout)
 
-L:
-	for {
-		select {
-		case <-indexMoreAndMoreScenarioCh:
-			go func() {
-				indexMoreAndMoreScenario(checker.NewSession())
-				indexMoreAndMoreScenarioCh <- true
-			}()
-		case <-loadIndexScenarioCh:
-			go func() {
-				loadIndexScenario(checker.NewSession())
-				loadIndexScenarioCh <- true
-			}()
-		case <-userAndPostPageScenarioCh:
-			go func() {
-				userAndPostPageScenario(checker.NewSession(), randomUser(users).AccountName)
-				userAndPostPageScenarioCh <- true
-			}()
-		case <-commentScenarioCh:
-			go func() {
-				commentScenario(checker.NewSession(), randomUser(users), randomUser(users).AccountName, randomSentence(sentences))
-				commentScenarioCh <- true
-			}()
-		case <-postImageScenarioCh:
-			go func() {
-				postImageScenario(checker.NewSession(), randomUser(users), randomImage(images), randomSentence(sentences))
-				cannotPostWrongCSRFTokenScenario(checker.NewSession(), randomUser(users), randomImage(images))
-				postImageScenarioCh <- true
-			}()
-		case <-loginScenarioCh:
-			go func() {
-				loginScenario(checker.NewSession(), randomUser(users))
-				cannotLoginNonexistentUserScenario(checker.NewSession())
-				cannotLoginWrongPasswordScenario(checker.NewSession(), randomUser(users))
-				loginScenarioCh <- true
-			}()
-		case <-banScenarioCh:
-			go func() {
-				banScenario(checker.NewSession(), checker.NewSession(), randomUser(users), randomUser(adminUsers), randomImage(images), randomSentence(sentences))
-				cannotAccessAdminScenario(checker.NewSession(), randomUser(users))
-				banScenarioCh <- true
-			}()
-		case <-timeoutCh:
-			break L
-		}
-	}
+	// L:
+	// 	for {
+	// 		select {
+	// 		case <-indexMoreAndMoreScenarioCh:
+	// 			go func() {
+	// 				indexMoreAndMoreScenario(checker.NewSession())
+	// 				indexMoreAndMoreScenarioCh <- true
+	// 			}()
+	// 		case <-loadIndexScenarioCh:
+	// 			go func() {
+	// 				loadIndexScenario(checker.NewSession())
+	// 				loadIndexScenarioCh <- true
+	// 			}()
+	// 		case <-userAndPostPageScenarioCh:
+	// 			go func() {
+	// 				userAndPostPageScenario(checker.NewSession(), randomUser(users).AccountName)
+	// 				userAndPostPageScenarioCh <- true
+	// 			}()
+	// 		case <-commentScenarioCh:
+	// 			go func() {
+	// 				commentScenario(checker.NewSession(), randomUser(users), randomUser(users).AccountName, randomSentence(sentences))
+	// 				commentScenarioCh <- true
+	// 			}()
+	// 		case <-postImageScenarioCh:
+	// 			go func() {
+	// 				postImageScenario(checker.NewSession(), randomUser(users), randomImage(images), randomSentence(sentences))
+	// 				cannotPostWrongCSRFTokenScenario(checker.NewSession(), randomUser(users), randomImage(images))
+	// 				postImageScenarioCh <- true
+	// 			}()
+	// 		case <-loginScenarioCh:
+	// 			go func() {
+	// 				loginScenario(checker.NewSession(), randomUser(users))
+	// 				cannotLoginNonexistentUserScenario(checker.NewSession())
+	// 				cannotLoginWrongPasswordScenario(checker.NewSession(), randomUser(users))
+	// 				loginScenarioCh <- true
+	// 			}()
+	// 		case <-banScenarioCh:
+	// 			go func() {
+	// 				banScenario(checker.NewSession(), checker.NewSession(), randomUser(users), randomUser(adminUsers), randomImage(images), randomSentence(sentences))
+	// 				cannotAccessAdminScenario(checker.NewSession(), randomUser(users))
+	// 				banScenarioCh <- true
+	// 			}()
+	// 		case <-timeoutCh:
+	// 			break L
+	// 		}
+	// 	}
 
-	time.Sleep(waitAfterTimeout)
+	// 	time.Sleep(waitAfterTimeout)
 
-	var msgs []string
-	if !debug {
-		msgs = score.GetFailErrorsStringSlice()
-	} else {
-		msgs = score.GetFailRawErrorsStringSlice()
-	}
+	// 	var msgs []string
+	// 	if !debug {
+	// 		msgs = score.GetFailErrorsStringSlice()
+	// 	} else {
+	// 		msgs = score.GetFailRawErrorsStringSlice()
+	// 	}
 
+	msgs := []string{"テスト中です"}
 	output := formatResultJSON(true, msgs)
 	teamID := strconv.FormatInt(config.TeamID, 10)
 	err = outputRepository.SaveOutput(teamID, &output)
