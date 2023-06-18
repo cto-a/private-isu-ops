@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -251,7 +252,8 @@ L:
 	}
 
 	output := formatResultJSON(true, msgs)
-	err = outputRepository.SaveOutput(string(config.TeamID), &output)
+	teamID := strconv.FormatInt(config.TeamID, 10)
+	err = outputRepository.SaveOutput(teamID, &output)
 	if err != nil {
 		log.Println(err)
 	}
