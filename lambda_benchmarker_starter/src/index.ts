@@ -24,7 +24,7 @@ const fetchRunningDataFromGoogleSpreadSheet = async (url: string) => {
 const runTask = async () => {
     const input: RunTaskCommandInput = {
 	cluster: "benchmarker-ecs-cluster",
-	taskDefinition: "benchmark-ecs-service",
+	taskDefinition: "benchmarker-ecs-task-definition:17",
         launchType: "FARGATE",
         count: 1,
     }
