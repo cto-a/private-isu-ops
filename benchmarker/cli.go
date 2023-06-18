@@ -101,10 +101,15 @@ func (cli *CLI) Run(args []string) int {
 	config, err := runningConfig.GetRunningConfig()
 	if err != nil {
 		fmt.Fprintf(cli.errStream, "Failed to get running config: %s\n", err)
-		return ExitCodeError
+		log.Println("Failed to get running config use Sample ip and teamID")
+		config = runningconfig.RunningConfig{
+			TargetAddress: "http://54.249.115.183",
+			TeamID:        1,
+		}
 	}
 	log.Println("config_file")
 	log.Println(config)
+
 	target = config.TargetAddress
 
 	// Define option flag parse
