@@ -14,58 +14,50 @@ const sqs = new SQS({ region: "ap-northeast-1" })
 const fetchRunningDataFromGoogleSpreadSheet = async (url: string) => {
     const response = await fetch(url)
     const data = await response.json()
-    console.log(data)
     return data
 }
 
 export const handler = async (event) => {
     console.log(event)
     const sheetsApiUrl = process.env.GOOGLE_SHEETS_API
+    const queueUrl = process.env.SQS_QUEUE_URL || "https://sqs.ap-northeast-1.amazonaws.com/254374927794/benchmark_queue"
     console.log("url: " + sheetsApiUrl)
     try {
 	const data = await fetchRunningDataFromGoogleSpreadSheet(sheetsApiUrl)
-	console.log(data)
+	console.log(JSON.stringify(data))
     } catch (e) {
 	console.error(e)
 	return;
     }
-    const sourceIp = event.requestContext.http.sourceIp
-    const rawQueryString = event.rawQueryString
-    const val = event.queryStringParameters.val
+    const teamId = event.teamId;
+    const targetIp = "http://54.249.115.183"
+    console.log("teamId: " + teamId)
     const params = {
         // DelaySeconds: 10,
         MessageAttributes: {
-            sourceIp: {
+            targetIp: {
                 DataType: "String",
-                StringValue: sourceIp,
-            },
-            rawQueryString: {
-                DataType: "String",
-                StringValue: rawQueryString,
-            },
-            val: {
-                DataType: "String",
-                StringValue: val,
+                StringValue: targetIp,
             },
         },
         MessageBody: "TESTです。",
-        QueueUrl: "https://sqs.ap-northeast-1.amazonaws.com/254374927794/benchmark_queue",
+        QueueUrl: queueUrl,
     }
-    const command = new SendMessageCommand(params)
-    let response = {
+    try {
+	console.log("send message")
+	const command = new SendMessageCommand(params)
+        await sqs.send(command)
+    } catch(e) {
+	console.error("error debug")
+	console.error(e)
+	return {
+		statusCode: 500,
+		body: JSON.stringify(`Error :${e}`),
+	}
+    }
+    const response = {
         statusCode: 200,
         body: JSON.stringify("Hello from Lambda!"),
-    }
-
-    try {
-        await sqs.send(command)
-        console.log("Success")
-    } catch (e) {
-        console.log("Error", e)
-        response = {
-            statusCode: 200,
-            body: JSON.stringify("Error"),
-        }
     }
 
     return response
