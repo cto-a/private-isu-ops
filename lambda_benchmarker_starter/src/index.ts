@@ -1,8 +1,12 @@
-import { SQS, SendMessageCommand } from "@aws-sdk/client-sqs"
+import { SQS, SendMessageCommand, ECSClient, RunTaskCommand, RunTaskCommandInput } from "@aws-sdk/client-sqs"
 import https from "https"
 import { setTimeout } from "timers/promises"
 
 const sqs = new SQS({ region: "ap-northeast-1" })
+
+const client = new ECSClient({
+    region: "ap-northeast-1",
+})
 
 /**
  * spread sheetから参加者の情報を取得する
@@ -14,6 +18,17 @@ const fetchRunningDataFromGoogleSpreadSheet = async (url: string) => {
     const response = await fetch(url)
     const data = await response.json()
     return data
+}
+
+const runTask = async () => {
+    const input: RunTaskCommandInput = {
+	cluster: "benchmarker-ecs-cluster",
+	taskDefinition: "benchmark-ecs-service",
+        launchType: "FARGATE",
+        count: 1,
+    }
+    const command = new RunTaskCommand(input)
+    return await client.send(command)
 }
 
 export const handler = async (event) => {
@@ -69,24 +84,15 @@ export const handler = async (event) => {
     }
 
     // CloudTaskの起動
-    const ecs = new AWS.ECS()
-    const taskResult = await ecs
-        .runTask({
-            cluster: "benchmarker-ecs-cluster",
-            taskDefinition: "benchmark-ecs-service",
-            launchType: "FARGATE",
-            count: 1,
-            //     networkConfiguration: {
-            // awsvpcConfiguration: {
-            //     subnets: [ECS_SUBNET],
-            //     assignPublicIp: "ENABLED",
-            // },
-            //     },
-        })
-        .promise()
-
-    if (taskResult.failures != null) {
-        console.error(taskResult.failures)
+    try {
+	const data = await runTask()
+	console.log(data)
+    } catch(e) {
+	console.error(e)
+	return {
+		statusCode: 500,
+		body: JSON.stringify(`Error :${e}`),
+	}
     }
 
     const response = {
