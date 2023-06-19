@@ -28,8 +28,14 @@ func (r *OutputRepositoryImple) SaveOutput(teamId string, output *Output) error 
 	nowStr := strconv.FormatInt(now, 10)
 
 	// 一旦GQLクライアントを利用せずに文字列で組み立て
+	var message string
+	if len(output.Messages) == 0 {
+		message = "[]"
+	} else {
+		message = "[\"" + output.Messages[0] + "\"]"
+	}
 	str := `{
-		"query": "mutation { updateTeamScore(team_id: ` + teamId + `, pass: true, score: ` + scoreData + ` success: ` + successData + `, fail: ` + failsData + `, messages: [\"` + output.Messages[0] + `\"], timestamp: ` + nowStr + `) { team_id pass score success fail messages timestamp } }"
+		"query": "mutation { updateTeamScore(team_id: ` + teamId + `, pass: true, score: ` + scoreData + ` success: ` + successData + `, fail: ` + failsData + `, messages: ` + message + `, timestamp: ` + nowStr + `) { team_id pass score success fail messages timestamp } }"
 	}`
 	log.Println(str)
 	jsonData := []byte(str)
