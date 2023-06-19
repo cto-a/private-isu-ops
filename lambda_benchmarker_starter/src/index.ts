@@ -79,7 +79,7 @@ export const handler = async (event) => {
                 StringValue: teamId,
             },
         },
-        MessageBody: "TESTです。",
+        MessageBody: JSON.stringify({ team_id: teamId, target_address: targetIp }),
         QueueUrl: queueUrl,
     }
 
