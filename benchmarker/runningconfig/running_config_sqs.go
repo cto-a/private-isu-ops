@@ -40,23 +40,8 @@ func GetMessages(s *sqs.SQS, queueUrl string, maxMessages int) (*sqs.ReceiveMess
 
 // delete queueは別で分けてもいいが一旦雑に同一関数に実装
 func (r *RunningConfigRepositoryImple) GetRunningConfig() (RunningConfig, error) {
-	// デバッグ用
-	// msgJson, err := json.Marshal(RunningConfig{
-	// 	TargetAddress: "http://example.com",
-	// 	TeamID:        1,
-	// })
-	// if err != nil {
-	// 	return RunningConfig{}, err
-	// }
-	// _, err = r.SQS.SendMessage(&sqs.SendMessageInput{
-	// 	MessageBody: aws.String(string(msgJson)),
-	// 	QueueUrl:    &r.sqsUrl,
-	// })
-	// if err != nil {
-	// 	return RunningConfig{}, err
-	// }
-
 	maxMessages := 1
+	log.Println("SQS_URL:", r.sqsUrl)
 	msgRes, err := GetMessages(r.SQS, r.sqsUrl, maxMessages)
 	if err != nil {
 		log.Println("fail to GetMessages")
