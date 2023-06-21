@@ -53,10 +53,11 @@ func (cli *CLI) Run(args []string) int {
 	sess := session.Must(session.NewSessionWithOptions(
 		session.Options{
 			Config: aws.Config{
-				Region: aws.String("ap-northeast-1"),
+				Region:                        aws.String("ap-northeast-1"),
+				CredentialsChainVerboseErrors: aws.Bool(true),
 			},
-			Profile:           "cto-a",
-			SharedConfigState: session.SharedConfigEnable,
+			// Profile: "terraform",
+			// SharedConfigState: session.SharedConfigEnable,
 		}),
 	)
 
