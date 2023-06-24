@@ -44,11 +44,11 @@ func (r *RunningConfigRepositoryImple) GetRunningConfig() (RunningConfig, error)
 	log.Println("SQS_URL:", r.sqsUrl)
 	msgRes, err := GetMessages(r.SQS, r.sqsUrl, maxMessages)
 	if err != nil {
-		log.Println("fail to GetMessages")
 		return RunningConfig{}, err
 	}
 	log.Println("msgRes:", msgRes.Messages[0].Attributes)
 	log.Println("msgBody:", msgRes.Messages[0].Body)
+	log.Println("msgRecepeBody:", *msgRes.Messages[0].Body)
 	var item RunningConfig
 	err = json.Unmarshal([]byte(*msgRes.Messages[0].Body), &item)
 	if err != nil {
