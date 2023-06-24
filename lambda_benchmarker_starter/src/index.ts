@@ -30,7 +30,7 @@ const runTask = async () => {
 	// TODO: ここ環境変数経由にして
     const input: RunTaskCommandInput = {
         cluster: "benchmarker-ecs-cluster",
-        taskDefinition: "benchmarker-ecs-task-definition:17",
+        taskDefinition: "benchmarker-ecs-task-definition:18",
         launchType: "FARGATE",
         count: 1,
         networkConfiguration: {
@@ -48,7 +48,7 @@ const runTask = async () => {
 export const handler = async (event) => {
     console.log(event)
     // 接続元IPを取得
-    let sourceIp = event?.requestContext?.http?.sourceIp
+    const sourceIp = event?.requestContext?.http?.sourceIp
 
     if (sourceIp === undefined) {
         return {
@@ -71,7 +71,7 @@ export const handler = async (event) => {
         console.error(e)
         return
     }
-    let teamList: {
+    const teamList: {
         teamId: string;
         teamName: string;
         teamIp: string;
