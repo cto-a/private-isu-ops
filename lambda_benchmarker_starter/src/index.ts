@@ -47,26 +47,54 @@ const runTask = async () => {
 
 export const handler = async (event) => {
     console.log(event)
-    if (event.teamId === undefined) {
+    // 接続元IPを取得
+    let sourceIp = event?.requestContext?.http?.sourceIp
+
+    if (sourceIp === undefined) {
         return {
             statusCode: 400,
-            body: JSON.stringify("Error: teamId is not defined"),
+            body: JSON.stringify("Error: sourceIp is not defined"),
         }
     }
-    const { teamId } = event
+
+    // const { teamId } = event
     const sheetsApiUrl = process.env.GOOGLE_SHEETS_API
     const queueUrl =
         process.env.SQS_QUEUE_URL || "https://sqs.ap-northeast-1.amazonaws.com/254374927794/benchmark_queue"
     console.log("url: " + sheetsApiUrl)
+
+    let sheetsData;
     try {
-        const data = await fetchRunningDataFromGoogleSpreadSheet(sheetsApiUrl)
-        console.log(JSON.stringify(data))
+        sheetsData = await fetchRunningDataFromGoogleSpreadSheet(sheetsApiUrl)
+        console.log(JSON.stringify(sheetsData))
     } catch (e) {
         console.error(e)
         return
     }
-    const targetIp = "http://54.249.115.183"
+    let teamList: {
+        teamId: string;
+        teamName: string;
+        teamIp: string;
+      }[] = []      
+    // sheetsDataのデータからチームID、チーム名、チームIPをteamList配列に入れ直す
+    sheetsData.sheets[0].data[0].rowData.forEach( data => {
+        const teamData ={
+          teamId: data.values[0]?.formattedValue,
+          teamName: data.values[1]?.formattedValue,
+          teamIp: data.values[2]?.formattedValue
+        };
+        teamList.push(teamData)
+    }
+    )
+    // 接続元IPのチーム名を抽出する
+    const targetTeam = teamList.filter(team => team.teamIp == sourceIp);
+    // 複数あった場合は最初のものを利用する
+    const targetIp = targetTeam[0]?.teamIp || sourceIp
+    const teamId = targetTeam[0]?.teamId || '9999'
+    const teamName = targetTeam[0]?.teamName || 'no data'
+    console.log("targetIp: " + targetIp)
     console.log("teamId: " + teamId)
+    console.log("teamId: " + teamName)
     const params = {
         // DelaySeconds: 10,
         MessageAttributes: {
@@ -77,6 +105,10 @@ export const handler = async (event) => {
             teamId: {
                 DataType: "Number",
                 StringValue: teamId,
+            },
+            teamName: {
+                DataType: "String",
+                StringValue: teamName,
             },
         },
         MessageBody: JSON.stringify({ team_id: teamId, target_address: targetIp }),
