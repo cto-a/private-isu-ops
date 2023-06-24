@@ -102,6 +102,7 @@ func (cli *CLI) Run(args []string) int {
 	config, err := runningConfig.GetRunningConfig()
 	if err != nil {
 		fmt.Fprintf(cli.errStream, "Failed to get running config: %s\n", err)
+		log.Println(err)
 		log.Println("Failed to get running config use Sample ip and teamID")
 		config = runningconfig.RunningConfig{
 			TargetAddress: "http://54.249.115.183",

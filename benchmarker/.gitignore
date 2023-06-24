@@ -5,3 +5,4 @@ terraform/.aws
 bin/
 userdata/img/
 userdata/img.zip
+.DS_Store
