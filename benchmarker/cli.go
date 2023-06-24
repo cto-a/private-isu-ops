@@ -63,15 +63,6 @@ func (cli *CLI) Run(args []string) int {
 
 	// SQSのクライアントを作成
 	sqsSvc := sqs.New(sess)
-	log.Println(*sqsSvc.Config.Region)
-	credential, err := sqsSvc.Config.Credentials.Get()
-	if err != nil {
-		log.Println(err)
-	}
-	log.Println("access_key_id:", credential.AccessKeyID)
-	log.Println("secret_access_key:", credential.SecretAccessKey)
-	log.Println("session_token:", credential.SessionToken)
-	log.Println("provider_name:", credential.ProviderName)
 
 	// APP_SYNC_API_KEYが設定されているかチェック
 	apiKey := os.Getenv("APP_SYNC_API_KEY")
