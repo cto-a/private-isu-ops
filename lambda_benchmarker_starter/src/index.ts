@@ -90,7 +90,7 @@ export const handler = async (event) => {
     const targetTeam = teamList.filter(team => team.teamIp == sourceIp);
     // 複数あった場合は最初のものを利用する
     const targetIp = targetTeam[0]?.teamIp || sourceIp
-    const teamId = targetTeam[0]?.teamId || '9999'
+    const teamId = targetTeam[0]?.teamId || 9999
     const teamName = targetTeam[0]?.teamName || 'no data'
     console.log("targetIp: " + targetIp)
     console.log("teamId: " + teamId)
@@ -144,7 +144,7 @@ export const handler = async (event) => {
 
     const response = {
         statusCode: 200,
-        body: JSON.stringify("Hello from Lambda!"),
+        body: JSON.stringify("---------------benchmarker start target ip [" + targetIp + "]----------------\n"),
     }
 
     return response
