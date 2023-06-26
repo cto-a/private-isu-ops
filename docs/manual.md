@@ -7,9 +7,10 @@
 
 ## ポータルサイト
 
-REPLACE
-[https://portal.isucon.net/](https://portal.isucon.net/)
-上記リンクを開いてください。計測ツールで測定したスコアはこのポータルに送られ、集計結果を見ることができます。
+[https://portal.ctoaisucon.com/](https://portal.ctoaisucon.com/)
+
+上記リンクを開いて、配布されたusernameでログインしてください。
+計測ツールで測定したスコアはこのポータルに送られ、集計結果を見ることができます。
 
 ## Getting Started
 
@@ -105,7 +106,13 @@ EC2 インスタンスのパブリック IP アドレスにブラウザでアク
 
 ### 4. 負荷走行を実行
 
-この操作後、ポータルにて、あなたのチームのスコアが反映されているか確認して下さい。
+EC2上で、以下のコマンドを実行します。
+
+```
+curl https://bench.ctoaisucon.com/benchmark
+```
+
+数分経った後、ポータルにて、あなたのチームのスコアが反映されているか確認して下さい。
 
 ### ディレクトリ構成
 
@@ -200,7 +207,7 @@ $ sudo journalctl -f -u isu-go
 
 ## ルール詳細
 
-[CTO 協会 合同 ISUCON 研修 当日レギュレーション](/public_manual.md)
+[CTO 協会 合同 ISUCON 研修 当日レギュレーション](./public_manual.md)
 
 なお、当日レギュレーションと本マニュアルの記述に矛盾がある場合、本マニュアルの記述が優先されます。
 
