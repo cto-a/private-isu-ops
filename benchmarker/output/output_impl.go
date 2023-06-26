@@ -35,7 +35,7 @@ func (r *OutputRepositoryImple) SaveOutput(teamId string, output *Output) error 
 		message = "[\"" + output.Messages[0] + "\"]"
 	}
 	str := `{
-		"query": "mutation { updateTeamScore(team_id: ` + teamId + `, pass: true, score: ` + scoreData + ` success: ` + successData + `, fail: ` + failsData + `, messages: ` + message + `, timestamp: ` + nowStr + `) { team_id pass score success fail messages timestamp } }"
+		"query": "mutation { updateTeamScore(team_id: ` + teamId + `, pass: true, score: ` + scoreData + `, success: ` + successData + `, fail: ` + failsData + `, messages: ` + message + `, timestamp: ` + nowStr + `) { team_id pass score success fail messages timestamp } }"
 	}`
 	log.Println(str)
 	jsonData := []byte(str)
