@@ -18,12 +18,6 @@ aws dynamodb create-table --table-name $TABLE_NAME \
 # Wait until the table is created
 aws dynamodb wait table-exists --table-name $TABLE_NAME --region ap-northeast-1
 
-# Check if TEAM_COUNT is set
-if [ -z "${1}" ]; then
-  echo "Please set the TEAM_COUNT."
-  exit 1
-fi
-
 TEAM_COUNT=$1
 
 # Get the current UNIX timestamp from WorldTimeAPI in UTC
