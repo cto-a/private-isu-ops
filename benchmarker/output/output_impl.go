@@ -32,7 +32,11 @@ func (r *OutputRepositoryImple) SaveOutput(teamId string, output *Output) error 
 	if len(output.Messages) == 0 {
 		message = "[]"
 	} else {
-		message = "[\"" + output.Messages[0] + "\"]"
+		message = "["
+		for _, msg := range output.Messages {
+			message += "\\\"" + msg + "\\\","
+		}
+		message = message[:len(message)-1] + "]"
 	}
 	str := `{
 		"query": "mutation { updateTeamScore(team_id: ` + teamId + `, pass: true, score: ` + scoreData + `, success: ` + successData + `, fail: ` + failsData + `, messages: ` + message + `, timestamp: ` + nowStr + `) { team_id pass score success fail messages timestamp } }"
