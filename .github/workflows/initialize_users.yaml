@@ -1,0 +1,23 @@
+name: Initialize Users
+
+on:
+  workflow_dispatch:
+    inputs:
+      num_teams:
+        description: 'Number of teams'     
+        required: true
+        default: '10' 
+
+jobs:
+  run-initialization-users:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v2
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: 'ap-northeast-1'
+          role-to-assume: 'arn:aws:iam::254374927794:role/portal-ops-workflow'
+      - run: bash bin/initialize_users.sh ${{ github.event.inputs.num_teams }}
