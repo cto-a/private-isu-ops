@@ -11,9 +11,10 @@ resource "aws_ecs_cluster" "ecs_cluster" {
 }
 
 resource "aws_ecs_task_definition" "ecs_task" {
-  family                   = "benchmarker-ecs-task-definition"
-  cpu                      = "256"
-  memory                   = "1024"
+  family = "benchmarker-ecs-task-definition"
+  # 本番用
+  cpu                      = "4096"
+  memory                   = "8192"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   container_definitions    = file("./container_definitions.json")
