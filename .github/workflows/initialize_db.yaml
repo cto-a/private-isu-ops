@@ -7,9 +7,6 @@ on:
         description: 'Number of teams'     
         required: true
         default: '1' 
-  # for debug
-  push:
-    branch: add-workflow-to-ops-portal-initializations
 
 jobs:
   run-initialization-table:
@@ -26,4 +23,4 @@ jobs:
           role-to-assume: 'arn:aws:iam::254374927794:role/portal-ops-workflow'
 
       - name: Setup DynamoDB table
-        run: bash bin/setup_table.sh ${{ github.event.inputs.num_teams }}
+        run: bash bin/initialize_db.sh ${{ github.event.inputs.num_teams }}

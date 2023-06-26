@@ -7,7 +7,10 @@ on:
         description: 'Number of teams'     
         required: true
         default: '1' 
-
+  # for debug
+  push:
+    branch: add-workflow-to-ops-portal-initializations
+    
 jobs:
   run-initialization-users:
     runs-on: ubuntu-latest
