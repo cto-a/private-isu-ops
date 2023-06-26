@@ -6,10 +6,7 @@ on:
       num_teams:
         description: 'Number of teams'     
         required: true
-        default: '1' 
-  # for debug
-  push:
-    branch: add-workflow-to-ops-portal-initializations
+        default: '1'
 
 jobs:
   run-initialization-table:
