@@ -116,7 +116,7 @@ export const handler = async (event) => {
                 StringValue: teamName,
             },
         },
-        MessageBody: JSON.stringify({ team_id: teamId, target_address: targetIp }),
+        MessageBody: JSON.stringify({ team_id: parseInt(teamId, 10), target_address: targetIp }),
         QueueUrl: queueUrl,
     }
 
