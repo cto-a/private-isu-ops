@@ -33,7 +33,7 @@ else
 fi
 
 # チームごとのユーザーの作成
-for ((i=1; i<=NUM_TEAMS; i++)); do
+for ((i=0; i<=NUM_TEAMS-1; i++)); do
   TEAM_USERNAME="team${i}"
   TEAM_PASSWORD=$(openssl rand -base64 12 | sed 's/[+/=]/#/g')'1!'
   aws cognito-idp sign-up \
