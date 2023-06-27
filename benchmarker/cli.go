@@ -105,6 +105,8 @@ func (cli *CLI) Run(args []string) int {
 		return ExitCodeError
 	}
 	log.Println("config_file:", config)
+	teamID := strconv.FormatInt(config.TeamID, 10)
+	log.Println("teamID:", teamID)
 
 	target = "http://" + config.TargetAddress
 
@@ -141,7 +143,7 @@ func (cli *CLI) Run(args []string) int {
 	targetHost, err := checker.SetTargetHost(target)
 	if err != nil {
 		output := formatResultJSON(false, []string{"主催者に連絡してください"})
-		outputRepository.SaveOutput("1", &output)
+		outputRepository.SaveOutput(teamID, &output)
 		return ExitCodeError
 	}
 
@@ -152,7 +154,7 @@ func (cli *CLI) Run(args []string) int {
 	users, _, adminUsers, sentences, images, err := prepareUserdata(userdata)
 	if err != nil {
 		output := formatResultJSON(false, []string{"主催者に連絡してください"})
-		outputRepository.SaveOutput("1", &output)
+		outputRepository.SaveOutput(teamID, &output)
 		return ExitCodeError
 	}
 
@@ -160,7 +162,7 @@ func (cli *CLI) Run(args []string) int {
 
 	if !initReq {
 		output := formatResultJSON(false, []string{"初期化リクエストに失敗しました"})
-		outputRepository.SaveOutput("1", &output)
+		outputRepository.SaveOutput(teamID, &output)
 		return ExitCodeError
 	}
 
@@ -176,7 +178,7 @@ func (cli *CLI) Run(args []string) int {
 
 	if score.GetInstance().GetFails() > 0 {
 		output := formatResultJSON(false, score.GetFailErrorsStringSlice())
-		outputRepository.SaveOutput("1", &output)
+		outputRepository.SaveOutput(teamID, &output)
 		return ExitCodeError
 	}
 
@@ -247,7 +249,7 @@ L:
 	}
 
 	output := formatResultJSON(true, msgs)
-	teamID := strconv.FormatInt(config.TeamID, 10)
+
 	// if config.TeamID > 40 {
 	// 	log.Println("teamID is test user")
 	// 	return ExitCodeOK
