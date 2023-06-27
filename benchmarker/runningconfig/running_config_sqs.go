@@ -2,6 +2,7 @@ package runningconfig
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -47,8 +48,9 @@ func (r *RunningConfigRepositoryImple) GetRunningConfig() (RunningConfig, error)
 		log.Println("fail to GetMessages")
 		return RunningConfig{}, err
 	}
-	log.Println("msgRes:", msgRes.Messages[0].Attributes)
-	log.Println("msgBody:", msgRes.Messages[0].Body)
+	if len(msgRes.Messages) == 0 {
+		return RunningConfig{}, fmt.Errorf("length must be greater than 0, length = 0")
+	}
 	var item RunningConfig
 	err = json.Unmarshal([]byte(*msgRes.Messages[0].Body), &item)
 	if err != nil {
