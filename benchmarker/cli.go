@@ -253,6 +253,7 @@ L:
 	// 	return ExitCodeOK
 	// }
 	log.Println("output:", output)
+	log.Println("teamID:", teamID)
 	err = outputRepository.SaveOutput(teamID, &output)
 	if err != nil {
 		log.Println(err)
