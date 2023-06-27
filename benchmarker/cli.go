@@ -248,6 +248,11 @@ L:
 
 	output := formatResultJSON(true, msgs)
 	teamID := strconv.FormatInt(config.TeamID, 10)
+	// if config.TeamID > 40 {
+	// 	log.Println("teamID is test user")
+	// 	return ExitCodeOK
+	// }
+	log.Println("output:", output)
 	err = outputRepository.SaveOutput(teamID, &output)
 	if err != nil {
 		log.Println(err)
