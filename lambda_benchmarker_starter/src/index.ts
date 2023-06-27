@@ -30,7 +30,7 @@ const runTask = async () => {
     // TODO: ここ環境変数経由にして
     const input: RunTaskCommandInput = {
         cluster: "benchmarker-ecs-cluster",
-        taskDefinition: "benchmarker-ecs-task-definition:20",
+        taskDefinition: "benchmarker-ecs-task-definition:21",
         launchType: "FARGATE",
         count: 1,
         networkConfiguration: {
@@ -116,7 +116,7 @@ export const handler = async (event) => {
                 StringValue: teamName,
             },
         },
-        MessageBody: JSON.stringify({ team_id: teamId, target_address: targetIp }),
+        MessageBody: JSON.stringify({ team_id: parseInt(teamId), target_address: targetIp }),
         QueueUrl: queueUrl,
     }
 
