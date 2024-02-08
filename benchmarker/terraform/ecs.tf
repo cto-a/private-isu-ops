@@ -33,7 +33,7 @@ resource "aws_internet_gateway" "gw" {
 # NAT Gateway
 ####################################################
 resource "aws_eip" "nat_eip_0" {
-  vpc        = true
+  domain     = "vpc"
   depends_on = [aws_internet_gateway.gw]
 
   tags = {
@@ -42,7 +42,7 @@ resource "aws_eip" "nat_eip_0" {
 }
 
 resource "aws_eip" "nat_eip_1" {
-  vpc        = true
+  domain     = "vpc"
   depends_on = [aws_internet_gateway.gw]
 
   tags = {
