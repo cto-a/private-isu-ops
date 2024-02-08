@@ -1,19 +1,14 @@
 [
     {
         "name": "benchmarker-container",
-        "image": "nginx:latest",
+        "image": "254374927794.dkr.ecr.ap-northeast-1.amazonaws.com/private-isu-benchmarker-repository:latest",
         "essential": true,
-        "environment": [
-            {
-                "name": "SQS_QUEUE_URL",
-                "value": "${aws_sqs_queue.benchmark_sqs_queue.url}"
-            }
-        ],
         "logConfiguration": {
             "logDriver": "awslogs",
             "options": {
                 "awslogs-region": "ap-northeast-1",
-                "awslogs-stream-prefix": "benchmarker",
+                "awslogs-create-group": "true",
+                "awslogs-stream-prefix": "ecs",
                 "awslogs-group": "/ecs/benchmarker"
             }
         },
@@ -21,6 +16,22 @@
             {
                 "protocol": "tcp",
                 "containerPort": 80
+            }
+        ],
+        "environment": [
+            {
+                "name": "SQS_URL",
+                "value": "https://sqs.ap-northeast-1.amazonaws.com/254374927794/TestQueue"
+            },
+            {
+                "name": "APP_SYNC_ENDPOINT_URL",
+                "value": "https://6bqrafkynnbbzgkticdkxuawki.appsync-api.ap-northeast-1.amazonaws.com/graphql"
+            }
+        ],
+        "secrets": [
+            {
+                "name": "APP_SYNC_API_KEY",
+                "valueFrom": "arn:aws:ssm:ap-northeast-1:254374927794:parameter/benchmarker/APP_SYNC_API_KEY"
             }
         ]
     }

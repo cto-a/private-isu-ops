@@ -33,7 +33,7 @@ resource "aws_internet_gateway" "gw" {
 # NAT Gateway
 ####################################################
 resource "aws_eip" "nat_eip_0" {
-  vpc        = true
+  domain     = "vpc"
   depends_on = [aws_internet_gateway.gw]
 
   tags = {
@@ -42,7 +42,7 @@ resource "aws_eip" "nat_eip_0" {
 }
 
 resource "aws_eip" "nat_eip_1" {
-  vpc        = true
+  domain     = "vpc"
   depends_on = [aws_internet_gateway.gw]
 
   tags = {
@@ -288,9 +288,8 @@ resource "aws_ecs_task_definition" "benchmarker_ecs_task" {
   memory                   = "512"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  # コンテナイメージは仮で Nginx
-  container_definitions = file("./container_definitions.json")
-  execution_role_arn    = aws_iam_role.ecs_task_execution_role.arn
+  container_definitions    = file("./container_definitions.json")
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
 }
 
 # ECSサービス
@@ -319,21 +318,18 @@ resource "aws_ecs_service" "benchmarker_ecs_service" {
     container_port   = 80
   }
 
+  # Fargateの場合、デプロイのたびにタスク定義が更新される
+  # `terraform plan` で差分が出るため、初回のリソース作成時を除き変更を無視する
   # Terraformでのタスク定義の変更は初回以外無視する
   # lifecycle {
   #   ignore_changes = [task_definition]
   # }
 }
 
-# CloudWatch Logs
-resource "aws_cloudwatch_log_group" "benchmark_ecs_log" {
-  name              = "/ecs/benchmarker"
-  retention_in_days = 3
-}
-
 # ECSタスク実行ロール
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name               = "ecs-task-execution-role"
+  name = "ecs-task-execution-role"
+
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -350,7 +346,57 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_attachment" {
+resource "aws_iam_policy" "ecs_task_execution_role_policy" {
+  name   = "ecs-task-execution-role-policy"
+  policy = <<-EOS
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:CreateLogGroup"
+            ],
+            "Resource": "*"
+        }
+    ]
+  }
+  EOS
+}
+
+resource "aws_iam_policy" "ssm_policy" {
+  name   = "ecs-task-execution-ssm-policy"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "ssm:GetParameters",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_ssm_policy" {
   role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  policy_arn = aws_iam_policy.ssm_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = aws_iam_policy.ecs_task_execution_role_policy.arn
+}
+
+resource "aws_cloudwatch_log_group" "ecs_log" {
+  name              = "/ecs/benchmarker"
+  retention_in_days = 3
 }
