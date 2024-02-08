@@ -281,7 +281,6 @@ resource "aws_ecs_cluster" "benchmarker_ecs_cluster" {
   }
 }
 
-
 # ECSタスク
 resource "aws_ecs_task_definition" "benchmarker_ecs_task" {
   family                   = "benchmarker-task-definition"
@@ -289,9 +288,8 @@ resource "aws_ecs_task_definition" "benchmarker_ecs_task" {
   memory                   = "512"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  # コンテナイメージは仮で Nginx
-  container_definitions = file("./container_definitions.json")
-  execution_role_arn    = aws_iam_role.ecs_task_execution_role.arn
+  container_definitions    = file("./container_definitions.json")
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
 }
 
 # ECSサービス
@@ -328,15 +326,10 @@ resource "aws_ecs_service" "benchmarker_ecs_service" {
   # }
 }
 
-# CloudWatch Logs
-resource "aws_cloudwatch_log_group" "benchmark_ecs_log" {
-  name              = "/ecs/benchmarker"
-  retention_in_days = 3
-}
-
 # ECSタスク実行ロール
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name               = "ecs-task-execution-role"
+  name = "ecs-task-execution-role"
+
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
