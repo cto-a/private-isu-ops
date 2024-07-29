@@ -30,6 +30,27 @@ resource "aws_iam_role_policy_attachment" "lambda_policy" {
   role       = aws_iam_role.lambda_role.name
 }
 
+resource "aws_iam_role_policy" "lambda_sqs_policy" {
+  name = "lambda_sqs_policy"
+  role = aws_iam_role.lambda_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "sqs:SendMessage",
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes"
+        ]
+        Resource = aws_sqs_queue.benchmark_queue.arn
+      }
+    ]
+  })
+}
+
 # API Gateway
 resource "aws_apigatewayv2_api" "lambda_api" {
   name          = "benchmarker-starter-api"
