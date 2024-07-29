@@ -1,7 +1,7 @@
 #!/bin/bash
 
-USER_POOL_ID="ap-northeast-1_owwW23cX9"
-CLIENT_ID="28pbs1v5v549utukg74m89o2q3"
+USER_POOL_ID="ap-northeast-1_yCByLcvf5"
+CLIENT_ID="2f7nqkqu9gn4haa38n3ih0uanm" # Cognito をTerraformで作成した場合、Outputで取得可能
 REGION="ap-northeast-1"
 NUM_TEAMS=$1
 
