@@ -2,21 +2,22 @@
 
 # Table name
 TABLE_NAME="portal_scores"
+REGION="ap-northeast-1"
 
 # Delete the table
-aws dynamodb delete-table --table-name $TABLE_NAME --region ap-northeast-1
+aws dynamodb delete-table --table-name $TABLE_NAME --region $REGION
 
 # Wait until the table is deleted
-aws dynamodb wait table-not-exists --table-name $TABLE_NAME --region ap-northeast-1
+aws dynamodb wait table-not-exists --table-name $TABLE_NAME --region $REGION
 
 # Create the table
 aws dynamodb create-table --table-name $TABLE_NAME \
   --attribute-definitions AttributeName=team_id,AttributeType=N AttributeName=timestamp,AttributeType=N \
   --key-schema AttributeName=team_id,KeyType=HASH AttributeName=timestamp,KeyType=RANGE \
-  --billing-mode PAY_PER_REQUEST --region ap-northeast-1
+  --billing-mode PAY_PER_REQUEST --region $REGION
 
 # Wait until the table is created
-aws dynamodb wait table-exists --table-name $TABLE_NAME --region ap-northeast-1
+aws dynamodb wait table-exists --table-name $TABLE_NAME --region $REGION
 
 TEAM_COUNT=$1
 
@@ -37,5 +38,5 @@ do
         "timestamp": {"N": "'"$current_timestamp"'"},
         "messages": {"L": []}
     }' \
-    --region ap-northeast-1
+    --region $REGION
 done
