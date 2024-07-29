@@ -22,7 +22,7 @@ aws dynamodb wait table-exists --table-name $TABLE_NAME --region $REGION
 TEAM_COUNT=$1
 
 # Get the current UNIX timestamp from WorldTimeAPI in UTC
-current_timestamp=$(curl -s 'http://worldtimeapi.org/api/timezone/Etc/UTC' | grep -oP '(?<="unixtime":)\d+')
+current_timestamp=$(date +%s)
 
 # Insert initial scores for each team
 for i in $(seq 0 $((TEAM_COUNT-1)))
