@@ -31,7 +31,7 @@ const runTask = async () => {
     
     const input: RunTaskCommandInput = {
         cluster: process.env.ECS_CLUSTER_NAME || "benchmarker-ecs-cluster",
-        taskDefinition: process.env.ECS_TASK_DEFINITION_NAME || "benchmarker-task-definition:6",
+        taskDefinition: process.env.ECS_TASK_DEFINITION_NAME || "benchmarker-task-definition:7",
         launchType: "FARGATE",
         count: 1,
         networkConfiguration: {
