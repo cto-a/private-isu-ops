@@ -27,16 +27,17 @@ const fetchRunningDataFromGoogleSpreadSheet = async (url: string) => {
  * @returns
  */
 const runTask = async () => {
-    // TODO: ここ環境変数経由にして
+    const subnetIds = process.env.ECS_SUBNET_IDS ? process.env.ECS_SUBNET_IDS.split(',') : [];
+    
     const input: RunTaskCommandInput = {
-        cluster: "benchmarker-ecs-cluster",
-        taskDefinition: "benchmarker-ecs-task-definition:21",
+        cluster: process.env.ECS_CLUSTER_NAME || "benchmarker-ecs-cluster",
+        taskDefinition: process.env.ECS_TASK_DEFINITION_NAME || "benchmarker-task-definition:6",
         launchType: "FARGATE",
         count: 1,
         networkConfiguration: {
             awsvpcConfiguration: {
-                subnets: ["subnet-0e9f7dc40731fa66e", "subnet-040871c6dc7f81913"],
-                securityGroups: ["sg-0a6c2f0cae8fdc322"],
+                subnets: subnetIds,
+                securityGroups: [process.env.ECS_SECURITY_GROUP_ID || ""],
                 assignPublicIp: "DISABLED",
             },
         },
@@ -62,6 +63,7 @@ export const handler = async (event) => {
     const queueUrl =
         process.env.SQS_QUEUE_URL || "https://sqs.ap-northeast-1.amazonaws.com/254374927794/benchmark_queue"
     console.log("url: " + sheetsApiUrl)
+    console.log("queueUrl: " + queueUrl)
 
     let sheetsData
     try {

@@ -6,6 +6,18 @@ resource "aws_lambda_function" "benchmarker_starter" {
   runtime       = "nodejs20.x"
 
   source_code_hash = filebase64sha256("../index.zip")
+  timeout          = 900
+
+  environment {
+    variables = {
+      SQS_QUEUE_URL            = aws_sqs_queue.benchmark_queue.url
+      GOOGLE_SHEETS_API        = var.GOOGLE_SHEETS_API
+      ECS_CLUSTER_NAME         = "benchmarker-ecs-cluster"
+      ECS_TASK_DEFINITION_NAME = "benchmarker-task-definition:6"
+      ECS_SUBNET_IDS           = "subnet-000f7d2047cb7ff75,subnet-09cf922de49fb4503"
+      ECS_SECURITY_GROUP_ID    = "sg-0aaa16ac8d3cc8c71"
+    }
+  }
 }
 
 resource "aws_iam_role" "lambda_role" {
@@ -20,7 +32,7 @@ resource "aws_iam_role" "lambda_role" {
         Principal = {
           Service = "lambda.amazonaws.com"
         }
-      }
+      },
     ]
   })
 }
@@ -46,7 +58,29 @@ resource "aws_iam_role_policy" "lambda_sqs_policy" {
           "sqs:GetQueueAttributes"
         ]
         Resource = aws_sqs_queue.benchmark_queue.arn
-      }
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ecs:RunTask",
+          "ecs:DescribeTasks"
+        ]
+        Resource = [
+          "arn:aws:ecs:ap-northeast-1:009160051284:task-definition/benchmarker-task-definition:*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "iam:PassRole"
+        ]
+        Resource = "*"
+        Condition = {
+          StringLike = {
+            "iam:PassedToService" : "ecs-tasks.amazonaws.com"
+          }
+        }
+      },
     ]
   })
 }
