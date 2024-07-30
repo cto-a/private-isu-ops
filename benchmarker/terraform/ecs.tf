@@ -1,28 +1,64 @@
 ####################################################
 # vpc
 ####################################################
-module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
-
-  name = "benchmarker-vpc"
-  cidr = "10.0.0.0/16"
-
-  azs = ["ap-northeast-1a", "ap-northeast-1c"]
-
-  public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
-  private_subnets = ["10.0.11.0/24", "10.0.12.0/24"]
-
-  enable_dns_hostnames = true
+resource "aws_vpc" "main" {
+  cidr_block           = "10.0.0.0/16"
   enable_dns_support   = true
-  enable_nat_gateway   = true
-  single_nat_gateway   = false
+  enable_dns_hostnames = true
+
+  tags = {
+    Name = "benchmarker-vpc"
+  }
+}
+
+####################################################
+# Subnets
+####################################################
+resource "aws_subnet" "public_0" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "ap-northeast-1a"
+
+  tags = {
+    Name = "benchmarker-public-0"
+  }
+}
+
+resource "aws_subnet" "public_1" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "ap-northeast-1c"
+
+  tags = {
+    Name = "benchmarker-public-1"
+  }
+}
+
+resource "aws_subnet" "private_0" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.11.0/24"
+  availability_zone = "ap-northeast-1a"
+
+  tags = {
+    Name = "benchmarker-private-0"
+  }
+}
+
+resource "aws_subnet" "private_1" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.12.0/24"
+  availability_zone = "ap-northeast-1c"
+
+  tags = {
+    Name = "benchmarker-private-1"
+  }
 }
 
 ####################################################
 # Internet Gateway
 ####################################################
 resource "aws_internet_gateway" "gw" {
-  vpc_id = module.vpc.vpc_id
+  vpc_id = aws_vpc.main.id
 
   tags = {
     Name = "benchmarker-gw"
@@ -30,7 +66,7 @@ resource "aws_internet_gateway" "gw" {
 }
 
 ####################################################
-# NAT Gateway
+# EIP
 ####################################################
 resource "aws_eip" "nat_eip_0" {
   domain     = "vpc"
@@ -50,9 +86,12 @@ resource "aws_eip" "nat_eip_1" {
   }
 }
 
+####################################################
+# NAT Gateway
+####################################################
 resource "aws_nat_gateway" "nat_gateway_0" {
   allocation_id = aws_eip.nat_eip_0.id
-  subnet_id     = module.vpc.public_subnets[0]
+  subnet_id     = aws_subnet.public_0.id
   depends_on    = [aws_internet_gateway.gw]
 
   tags = {
@@ -62,7 +101,7 @@ resource "aws_nat_gateway" "nat_gateway_0" {
 
 resource "aws_nat_gateway" "nat_gateway_1" {
   allocation_id = aws_eip.nat_eip_1.id
-  subnet_id     = module.vpc.public_subnets[1]
+  subnet_id     = aws_subnet.public_1.id
   depends_on    = [aws_internet_gateway.gw]
 
   tags = {
@@ -74,7 +113,7 @@ resource "aws_nat_gateway" "nat_gateway_1" {
 # Route Table
 ####################################################
 resource "aws_route_table" "public_route_table" {
-  vpc_id = module.vpc.vpc_id
+  vpc_id = aws_vpc.main.id
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -86,17 +125,17 @@ resource "aws_route_table" "public_route_table" {
 }
 
 resource "aws_route_table_association" "public_subnet_association_0" {
-  subnet_id      = module.vpc.public_subnets[0]
+  subnet_id      = aws_subnet.public_0.id
   route_table_id = aws_route_table.public_route_table.id
 }
 
 resource "aws_route_table_association" "public_subnet_association_1" {
-  subnet_id      = module.vpc.public_subnets[1]
+  subnet_id      = aws_subnet.public_1.id
   route_table_id = aws_route_table.public_route_table.id
 }
 
 resource "aws_route_table" "private_route_table_0" {
-  vpc_id = module.vpc.vpc_id
+  vpc_id = aws_vpc.main.id
 
   route {
     cidr_block     = "0.0.0.0/0"
@@ -108,7 +147,7 @@ resource "aws_route_table" "private_route_table_0" {
 }
 
 resource "aws_route_table" "private_route_table_1" {
-  vpc_id = module.vpc.vpc_id
+  vpc_id = aws_vpc.main.id
 
   route {
     cidr_block     = "0.0.0.0/0"
@@ -120,12 +159,12 @@ resource "aws_route_table" "private_route_table_1" {
 }
 
 resource "aws_route_table_association" "private_subnet_association_0" {
-  subnet_id      = module.vpc.private_subnets[0]
+  subnet_id      = aws_subnet.private_0.id
   route_table_id = aws_route_table.private_route_table_0.id
 }
 
 resource "aws_route_table_association" "private_subnet_association_1" {
-  subnet_id      = module.vpc.private_subnets[1]
+  subnet_id      = aws_subnet.private_1.id
   route_table_id = aws_route_table.private_route_table_1.id
 }
 
@@ -136,8 +175,7 @@ resource "aws_route_table_association" "private_subnet_association_1" {
 resource "aws_security_group" "allow_http" {
   name        = "allow_http"
   description = "allow http,https access."
-  vpc_id      = module.vpc.vpc_id
-
+  vpc_id      = aws_vpc.main.id
   ingress {
     description = "allow http access."
     from_port   = 80
@@ -171,7 +209,7 @@ resource "aws_security_group" "allow_http" {
 resource "aws_security_group" "allow_internal" {
   name        = "allow_internal"
   description = "allow internal access."
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = aws_vpc.main.id
 
   ingress {
     description     = "allow internal http access."
@@ -214,8 +252,8 @@ resource "aws_lb" "benchmarker_alb" {
   enable_deletion_protection = false
 
   subnets = [
-    module.vpc.public_subnets[0],
-    module.vpc.public_subnets[1]
+    aws_subnet.public_0.id,
+    aws_subnet.public_1.id
   ]
 
   security_groups = [aws_security_group.allow_http.id]
@@ -247,7 +285,7 @@ resource "aws_lb_target_group" "benchmarker_lb_target_group" {
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = aws_vpc.main.id
 
   deregistration_delay = 300
 
@@ -307,8 +345,8 @@ resource "aws_ecs_service" "benchmarker_ecs_service" {
     security_groups  = [aws_security_group.allow_internal.id]
 
     subnets = [
-      module.vpc.private_subnets[0],
-      module.vpc.private_subnets[1]
+      aws_subnet.private_0.id,
+      aws_subnet.private_1.id
     ]
   }
 
