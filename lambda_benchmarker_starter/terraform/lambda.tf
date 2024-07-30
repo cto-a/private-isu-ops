@@ -6,6 +6,13 @@ resource "aws_lambda_function" "benchmarker_starter" {
   runtime       = "nodejs20.x"
 
   source_code_hash = filebase64sha256("../index.zip")
+
+  environment {
+    variables = {
+      SQS_QUEUE_URL     = aws_sqs_queue.benchmark_queue.url
+      GOOGLE_SHEETS_API = var.GOOGLE_SHEETS_API
+    }
+  }
 }
 
 resource "aws_iam_role" "lambda_role" {
