@@ -20,7 +20,7 @@ aws ec2 create-key-pair --key-name $KEY_PAIR_NAME --query 'KeyMaterial' --output
 chmod 400 $KEY_PAIR_NAME.pem
 
 # EC2インスタンスを起動する
-aws ec2 run-instances --image-id $AMI_ID --count $INSTANCE_NUM --instance-type $INSTANCE_TYPE --key-name $KEY_PAIR_NAME --security-group-ids $SECURITY_GROUP_ID 
+aws ec2 run-instances --image-id $AMI_ID --count $INSTANCE_NUM --instance-type $INSTANCE_TYPE --key-name $KEY_PAIR_NAME --security-group-ids $SECURITY_GROUP_ID >/dev/null 2>&1 
 
 # 起動したインスタンスのIPアドレスを取得する
 aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text
