@@ -328,6 +328,7 @@ resource "aws_ecs_task_definition" "benchmarker_ecs_task" {
   requires_compatibilities = ["FARGATE"]
   container_definitions    = file("./container_definitions.json")
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_task_role.arn
 }
 
 # ECSサービス
@@ -364,9 +365,29 @@ resource "aws_ecs_service" "benchmarker_ecs_service" {
   # }
 }
 
-# ECSタスク実行ロール
+# タスク実行ロール
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "ecs-task-execution-role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+# タスクロール
+resource "aws_iam_role" "ecs_task_role" {
+  name = "ecs-task-role"
 
   assume_role_policy = <<EOF
 {
@@ -424,6 +445,25 @@ resource "aws_iam_policy" "ssm_policy" {
 EOF
 }
 
+resource "aws_iam_policy" "ecs_sqs_access_policy" {
+  name        = "ecs-sqs-access-policy"
+  description = "Allow ECS tasks to access SQS"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes"
+        ]
+        Resource = "arn:aws:sqs:ap-northeast-1:009160051284:benchmark_queue"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_ssm_policy" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = aws_iam_policy.ssm_policy.arn
@@ -432,6 +472,11 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_ssm_policy" {
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = aws_iam_policy.ecs_task_execution_role_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_sqs_policy_attachment" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.ecs_sqs_access_policy.arn
 }
 
 resource "aws_cloudwatch_log_group" "ecs_log" {
