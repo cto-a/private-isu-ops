@@ -30,13 +30,13 @@ const runTask = async () => {
     // TODO: ここ環境変数経由にして
     const input: RunTaskCommandInput = {
         cluster: "benchmarker-ecs-cluster",
-        taskDefinition: "benchmarker-ecs-task-definition:21",
+        taskDefinition: "benchmarker-task-definition:6",
         launchType: "FARGATE",
         count: 1,
         networkConfiguration: {
             awsvpcConfiguration: {
-                subnets: ["subnet-0e9f7dc40731fa66e", "subnet-040871c6dc7f81913"],
-                securityGroups: ["sg-0a6c2f0cae8fdc322"],
+                subnets: ["subnet-000f7d2047cb7ff75", "subnet-09cf922de49fb4503"],
+                securityGroups: ["sg-0aaa16ac8d3cc8c71"],
                 assignPublicIp: "DISABLED",
             },
         },
@@ -62,6 +62,7 @@ export const handler = async (event) => {
     const queueUrl =
         process.env.SQS_QUEUE_URL || "https://sqs.ap-northeast-1.amazonaws.com/254374927794/benchmark_queue"
     console.log("url: " + sheetsApiUrl)
+    console.log("queueUrl: " + queueUrl)
 
     let sheetsData
     try {
