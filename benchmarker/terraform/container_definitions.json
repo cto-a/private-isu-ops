@@ -21,17 +21,17 @@
         "environment": [
             {
                 "name": "SQS_URL",
-                "value": "https://sqs.ap-northeast-1.amazonaws.com/009160051284/TestQueue"
+                "value": "https://sqs.ap-northeast-1.amazonaws.com/009160051284/benchmark_queue"
             },
             {
                 "name": "APP_SYNC_ENDPOINT_URL",
-                "value": "https://6bqrafkynnbbzgkticdkxuawki.appsync-api.ap-northeast-1.amazonaws.com/graphql"
+                "value": "https://cusutmt7dzailk677bcabqkony.appsync-api.ap-northeast-1.amazonaws.com/graphql"
             }
         ],
         "secrets": [
             {
                 "name": "APP_SYNC_API_KEY",
-                "valueFrom": "arn:aws:ssm:ap-northeast-1:009160051284:parameter/benchmarker/APP_SYNC_API_KEY"
+                "valueFrom": "arn:aws:ssm:ap-northeast-1:009160051284:parameter/APP_SYNC_API_KEY"
             }
         ]
     }
