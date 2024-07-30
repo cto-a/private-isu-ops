@@ -6,6 +6,7 @@ resource "aws_lambda_function" "benchmarker_starter" {
   runtime       = "nodejs20.x"
 
   source_code_hash = filebase64sha256("../index.zip")
+  timeout          = 900
 
   environment {
     variables = {
