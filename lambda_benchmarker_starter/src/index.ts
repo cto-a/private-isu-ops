@@ -27,16 +27,17 @@ const fetchRunningDataFromGoogleSpreadSheet = async (url: string) => {
  * @returns
  */
 const runTask = async () => {
-    // TODO: ここ環境変数経由にして
+    const subnetIds = process.env.ECS_SUBNET_IDS ? process.env.ECS_SUBNET_IDS.split(',') : [];
+    
     const input: RunTaskCommandInput = {
-        cluster: "benchmarker-ecs-cluster",
-        taskDefinition: "benchmarker-task-definition:6",
+        cluster: process.env.ECS_CLUSTER_NAME || "benchmarker-ecs-cluster",
+        taskDefinition: process.env.ECS_TASK_DEFINITION_NAME || "benchmarker-task-definition:6",
         launchType: "FARGATE",
         count: 1,
         networkConfiguration: {
             awsvpcConfiguration: {
-                subnets: ["subnet-000f7d2047cb7ff75", "subnet-09cf922de49fb4503"],
-                securityGroups: ["sg-0aaa16ac8d3cc8c71"],
+                subnets: subnetIds,
+                securityGroups: [process.env.ECS_SECURITY_GROUP_ID || ""],
                 assignPublicIp: "DISABLED",
             },
         },
