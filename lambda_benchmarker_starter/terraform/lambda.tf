@@ -28,7 +28,7 @@ resource "aws_iam_role" "lambda_role" {
         Principal = {
           Service = "lambda.amazonaws.com"
         }
-      }
+      },
     ]
   })
 }
@@ -54,7 +54,29 @@ resource "aws_iam_role_policy" "lambda_sqs_policy" {
           "sqs:GetQueueAttributes"
         ]
         Resource = aws_sqs_queue.benchmark_queue.arn
-      }
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ecs:RunTask",
+          "ecs:DescribeTasks"
+        ]
+        Resource = [
+          "arn:aws:ecs:ap-northeast-1:009160051284:task-definition/benchmarker-task-definition:*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "iam:PassRole"
+        ]
+        Resource = "*"
+        Condition = {
+          StringLike = {
+            "iam:PassedToService" : "ecs-tasks.amazonaws.com"
+          }
+        }
+      },
     ]
   })
 }
