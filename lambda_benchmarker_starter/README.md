@@ -4,7 +4,8 @@ GetStart
 
 以下のコマンドでindex.mjsにbundleする
 ```zsh
+npm install
 npm run build
 ```
 
-index.mjsができるのでlambdaに手動でデプロイする
+index.mjsができるのでTerraformでlambdaにデプロイする
