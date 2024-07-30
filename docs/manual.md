@@ -3,11 +3,11 @@
 ## 当日の流れ
 
 - 10:00 競技開始
-- 17:30 競技終了
+- 18:00 競技終了
 
 ## ポータルサイト
 
-[https://portal.ctoaisucon.com/](https://portal.ctoaisucon.com/)
+[https://master.d2u5jk2tn3812v.amplifyapp.com/](https://master.d2u5jk2tn3812v.amplifyapp.com/)
 
 上記リンクを開いて、配布されたusernameでログインしてください。
 計測ツールで測定したスコアはこのポータルに送られ、集計結果を見ることができます。
