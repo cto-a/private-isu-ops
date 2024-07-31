@@ -127,9 +127,9 @@ curl https://8ukqooeebg.execute-api.ap-northeast-1.amazonaws.com
 
 ### 参考実装の言語切り替え方法
 
-参考実装の言語は Ruby/PHP/Go が用意されており、初期状態では Ruby の実装が起動しています。
+参考実装の言語はRuby/PHP/Goが用意されており、初期状態ではRubyの実装が起動しています。
 
-80 番ポートでアクセスできるので、ブラウザから動作確認をすることができます。
+80番ポートでアクセスできるので、ブラウザから動作確認をすることができます。
 
 プログラムの詳しい起動方法は、 /etc/systemd/system/isu-ruby.service を参照してください。
 
@@ -141,7 +141,7 @@ $ sudo journalctl -f -u isu-ruby
 
 などで見ることができます。
 
-また、unicorn の再起動は、
+また、unicornの再起動は、
 
 ```
 $ sudo systemctl restart isu-ruby
@@ -149,9 +149,9 @@ $ sudo systemctl restart isu-ruby
 
 などですることができます。
 
-#### PHP への切り替え方
+#### PHPへの切り替え方
 
-起動する実装を PHP に切り替えるには、以下の操作を行います。
+起動する実装をPHPに切り替えるには、以下の操作を行います。
 
 ```
 $ sudo systemctl stop isu-ruby
@@ -159,24 +159,24 @@ $ sudo systemctl disable isu-ruby
 $ sudo rm /etc/nginx/sites-enabled/isucon.conf
 $ sudo ln -s /etc/nginx/sites-available/isucon-php.conf /etc/nginx/sites-enabled/
 $ sudo systemctl reload nginx
-$ sudo systemctl start php8.1-fpm
-$ sudo systemctl enable php8.1-fpm
+$ sudo systemctl start php8.3-fpm
+$ sudo systemctl enable php8.3-fpm
 ```
 
-php-fpm の設定については、/etc/php/8.1/fpm/以下にあります。
+php-fpmの設定については、/etc/php/8.3/fpm/以下にあります。
 
 エラーなどの出力については、
 
 ```
-$ sudo journalctl -f -u php8.1-fpm
+$ sudo journalctl -f -u php8.3-fpm
 $ sudo tail -f /var/log/nginx/error.log
 ```
 
 などで見ることができます。
 
-#### Go への切り替え方
+#### Goへの切り替え方
 
-起動する実装を Go に切り替えるには、以下の操作を行います。
+起動する実装をGoに切り替えるには、以下の操作を行います。
 
 ```
 $ sudo systemctl stop isu-ruby
@@ -197,17 +197,18 @@ $ sudo journalctl -f -u isu-go
 
 ### MySQL
 
-3306 番ポートで MySQL が起動しています。初期状態では以下のユーザが設定されています。
+3306番ポートでMySQLが起動しています。初期状態では以下のユーザが設定されています。
 
-- ユーザ名: `isuconp`, パスワード: `isuconp`
+  * ユーザ名: `isuconp`, パスワード: `isuconp`
 
 ### memcached
 
-11211 番ポートで memcached が起動しています。
+11211番ポートでmemcachedが起動しています。
+
 
 ## ルール詳細
 
-[CTO 協会 合同 ISUCON 研修 当日レギュレーション](./public_manual.md)
+[社内ISUCON 当日レギュレーション](/public_manual.md)
 
 なお、当日レギュレーションと本マニュアルの記述に矛盾がある場合、本マニュアルの記述が優先されます。
 
@@ -225,22 +226,22 @@ $ sudo journalctl -f -u isu-go
 
 以下の事項に抵触すると減点対象となります。
 
-- 存在するべきファイルへのアクセスが失敗する
-- リクエスト失敗（通信エラー等）が発生する
-- サーバエラー(Status 5xx)・クライアントエラー(Status 4xx)をアプリケーションが返す
-- 他、計測ツールのチェッカが検出したケース
+  * 存在するべきファイルへのアクセスが失敗する
+  * リクエスト失敗（通信エラー等）が発生する
+  * サーバエラー(Status 5xx)・クライアントエラー(Status 4xx)をアプリケーションが返す
+  * 他、計測ツールのチェッカが検出したケース
 
 #### 注意事項
 
-- リダイレクトはリダイレクト先が正しいレスポンスを返せた場合に、1 回レスポンスが成功したと判断します
-- POST の失敗は大幅な減点対象です
+  * リダイレクトはリダイレクト先が正しいレスポンスを返せた場合に、1回レスポンスが成功したと判断します
+  * POSTの失敗は大幅な減点対象です
 
 ### 制約事項
 
 以下の事項に抵触すると点数が無効となります。
 
-- GET /initialize へのレスポンスが 10 秒以内に終わらない
-- 存在するべき DOM 要素がレスポンス HTML に存在しない
+  * GET /initialize へのレスポンスが10秒以内に終わらない
+  * 存在するべきDOM要素がレスポンスHTMLに存在しない
 
 ## 当日サポートについて
 
