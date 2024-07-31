@@ -109,7 +109,7 @@ EC2 インスタンスのパブリック IP アドレスにブラウザでアク
 EC2上で、以下のコマンドを実行します。
 
 ```
-curl https://bench.ctoaisucon.com/benchmark
+curl https://8ukqooeebg.execute-api.ap-northeast-1.amazonaws.com
 ```
 
 数分経った後、ポータルにて、あなたのチームのスコアが反映されているか確認して下さい。
