@@ -33,6 +33,13 @@
                 "name": "APP_SYNC_API_KEY",
                 "valueFrom": "arn:aws:ssm:ap-northeast-1:009160051284:parameter/APP_SYNC_API_KEY"
             }
-        ]
+        ],
+        "retryStrategy": {
+            "attempts": 3,
+            "interval": 30,
+            "statusCodes": [
+                2
+            ]
+        }
     }
 ]
