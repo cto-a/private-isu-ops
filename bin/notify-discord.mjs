@@ -37,7 +37,7 @@ export async function handler(event) {
             }
         }
 
-        msg.text = snsMessage;
+        msg.text = msg?.summary + "¥r¥n" + snsMessage;
         console.log("Sending message to Teams:", msg);
         try {
             await sendToTeams(HOOK_URL, msg);
@@ -73,9 +73,7 @@ export async function handler(event) {
         let cnt = 1;
         for (const message of messageList) {
             let msg = {
-                summary: "エラーログ通知: " + logGroup,
-                title: cnt + ". エラーログ通知: " + logGroup,
-                text: message
+                content: cnt + ". エラーログ通知: " + logGroup + "¥r  " + message
             };
             console.log("Sending message to Teams:", msg);
             try {
@@ -95,18 +93,18 @@ export async function handler(event) {
 
 function createMessageList(error_logs, max_byte) {
     let messageList = [];
-    let currentMessage = "エラー内容 </br>";
+    let currentMessage = "エラー内容¥\n";
 
     for (const log of error_logs) {
-        currentMessage += log.message + "</br>";
+        currentMessage += log.message + "¥\n";
 
         if (Buffer.byteLength(currentMessage, 'utf8') > max_byte) {
             currentMessage = currentMessage.slice(0, 4000);
             messageList.push(currentMessage);
-            currentMessage = "エラー内容 </br>";
+            currentMessage = "エラー内容¥\n";
         }
     }
-    if (currentMessage !== "エラー内容 </br>") {
+    if (currentMessage !== "エラー内容¥\n") {
         messageList.push(currentMessage);
     }
 
