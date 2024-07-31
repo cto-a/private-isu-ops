@@ -309,28 +309,9 @@ resource "aws_lb_target_group" "benchmarker_lb_target_group" {
 ####################################################
 # ECS
 ####################################################
-# キャパシティプロバイダ
-resource "aws_ecs_capacity_provider" "fargate_spot" {
-  name = "FARGATE_SPOT"
-}
-
-resource "aws_ecs_capacity_provider" "fargate" {
-  name = "FARGATE"
-}
-
 # ECSクラスター
 resource "aws_ecs_cluster" "benchmarker_ecs_cluster" {
   name = "benchmarker-ecs-cluster"
-
-  capacity_providers = [
-    aws_ecs_capacity_provider.fargate_spot.name,
-    aws_ecs_capacity_provider.fargate.name
-  ]
-
-  default_capacity_provider_strategy {
-    capacity_provider = aws_ecs_capacity_provider.fargate_spot.name
-    weight            = 1
-  }
 
   setting {
     name  = "containerInsights"
