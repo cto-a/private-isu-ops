@@ -41,6 +41,16 @@ const runTask = async () => {
                 assignPublicIp: "DISABLED",
             },
         },
+        capacityProviderStrategy: [
+            {
+                capacityProvider: "FARGATE_SPOT",
+                weight: 1,
+            },
+            {
+                capacityProvider: "FARGATE",
+                weight: 1,
+            },
+        ],
     }
     const command = new RunTaskCommand(input)
     return await client.send(command)
