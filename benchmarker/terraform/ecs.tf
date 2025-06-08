@@ -466,7 +466,7 @@ resource "aws_iam_policy" "ecs_sqs_access_policy" {
           "sqs:DeleteMessage",
           "sqs:GetQueueAttributes"
         ]
-        Resource = "arn:aws:sqs:ap-northeast-1:009160051284:benchmark_queue"
+        Resource = "arn:aws:sqs:ap-northeast-1:528452590477:benchmark_queue"
       }
     ]
   })

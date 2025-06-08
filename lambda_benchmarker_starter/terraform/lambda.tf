@@ -13,7 +13,7 @@ resource "aws_lambda_function" "benchmarker_starter" {
       SQS_QUEUE_URL            = aws_sqs_queue.benchmark_queue.url
       GOOGLE_SHEETS_API        = var.GOOGLE_SHEETS_API
       ECS_CLUSTER_NAME         = "benchmarker-ecs-cluster"
-      ECS_TASK_DEFINITION_NAME = "benchmarker-task-definition:11"
+      ECS_TASK_DEFINITION_NAME = "benchmarker-task-definition:1"
       ECS_SUBNET_IDS           = "subnet-000f7d2047cb7ff75,subnet-09cf922de49fb4503"
       ECS_SECURITY_GROUP_ID    = "sg-0aaa16ac8d3cc8c71"
     }
@@ -66,7 +66,7 @@ resource "aws_iam_role_policy" "lambda_sqs_policy" {
           "ecs:DescribeTasks"
         ]
         Resource = [
-          "arn:aws:ecs:ap-northeast-1:009160051284:task-definition/benchmarker-task-definition:*"
+          "arn:aws:ecs:ap-northeast-1:528452590477:task-definition/benchmarker-task-definition:*"
         ]
       },
       {

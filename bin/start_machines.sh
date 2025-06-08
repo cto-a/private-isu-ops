@@ -8,9 +8,9 @@ fi
 
 KEY_PAIR_NAME="CtoaIsuInitialKeyPair"
 INSTANCE_NUM=$1
-AMI_ID="ami-047fdc2b851e73cad" # https://github.com/catatsuy/private-isu
+AMI_ID="ami-0505850c059a7302e" # https://github.com/catatsuy/private-isu
 INSTANCE_TYPE="c7a.large" # 推奨タイプ
-SECURITY_GROUP_ID="sg-01e0a41b433867351" # 22と80が全開放されているSG
+SECURITY_GROUP_ID="sg-00029cfe67041096d" # 22と80が全開放されているSG
 
 # 実行するたびにキーペアを作り直す
 aws ec2 delete-key-pair --key-name $KEY_PAIR_NAME

@@ -1,7 +1,7 @@
 [
     {
         "name": "benchmarker-container",
-        "image": "009160051284.dkr.ecr.ap-northeast-1.amazonaws.com/private-isu-benchmarker-repository:latest",
+        "image": "528452590477.dkr.ecr.ap-northeast-1.amazonaws.com/private-isu-benchmarker-repository:latest",
         "essential": true,
         "logConfiguration": {
             "logDriver": "awslogs",
@@ -21,17 +21,17 @@
         "environment": [
             {
                 "name": "SQS_URL",
-                "value": "https://sqs.ap-northeast-1.amazonaws.com/009160051284/benchmark_queue"
+                "value": "https://sqs.ap-northeast-1.amazonaws.com/528452590477/benchmark_queue"
             },
             {
                 "name": "APP_SYNC_ENDPOINT_URL",
-                "value": "https://cusutmt7dzailk677bcabqkony.appsync-api.ap-northeast-1.amazonaws.com/graphql"
+                "value": "https://jqbbveggirf7nf7r7acvj5sz24.appsync-api.ap-northeast-1.amazonaws.com/graphql"
             }
         ],
         "secrets": [
             {
                 "name": "APP_SYNC_API_KEY",
-                "valueFrom": "arn:aws:ssm:ap-northeast-1:009160051284:parameter/APP_SYNC_API_KEY"
+                "valueFrom": "arn:aws:ssm:ap-northeast-1:528452590477:parameter/APP_SYNC_API_KEY"
             }
         ]
     }
