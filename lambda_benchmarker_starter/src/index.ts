@@ -32,7 +32,7 @@ const runTask = async () => {
     const input: RunTaskCommandInput = {
         cluster: process.env.ECS_CLUSTER_NAME || "benchmarker-ecs-cluster",
         taskDefinition: process.env.ECS_TASK_DEFINITION_NAME || "benchmarker-task-definition:7",
-        launchType: "FARGATE",
+        // launchType: "FARGATE",
         count: 1,
         networkConfiguration: {
             awsvpcConfiguration: {
@@ -41,16 +41,16 @@ const runTask = async () => {
                 assignPublicIp: "DISABLED",
             },
         },
-        // capacityProviderStrategy: [
-        //     {
-        //         capacityProvider: "FARGATE_SPOT",
-        //         weight: 1,
-        //     },
-        //     {
-        //         capacityProvider: "FARGATE",
-        //         weight: 1,
-        //     },
-        // ],
+        capacityProviderStrategy: [
+            {
+                capacityProvider: "FARGATE_SPOT",
+                weight: 1,
+            },
+            // {
+            //     capacityProvider: "FARGATE",
+            //     weight: 1,
+            // },
+        ],
     }
     const command = new RunTaskCommand(input)
     return await client.send(command)
