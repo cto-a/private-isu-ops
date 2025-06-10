@@ -7,7 +7,7 @@
 
 ## ポータルサイト
 
-[https://master.d2u5jk2tn3812v.amplifyapp.com/](https://master.d2u5jk2tn3812v.amplifyapp.com/)
+[https://master.d3nv83zcy273s8.amplifyapp.com/](https://master.d3nv83zcy273s8.amplifyapp.com/)
 
 上記リンクを開いて、配布されたusernameでログインしてください。
 計測ツールで測定したスコアはこのポータルに送られ、集計結果を見ることができます。
@@ -98,21 +98,21 @@ sudo su - isucon
 
 ### 3. アプリケーションの動作を確認
 
-EC2 インスタンスのパブリック IP アドレスにブラウザでアクセスし、動作を確認してください。以下の画面が表示されるはずです。
+EC2インスタンスのパブリックIPアドレスにブラウザでアクセスし、動作を確認してください。以下の画面が表示されるはずです。
 
 例として、「アカウント名」は `mary`、 「パスワード」は `marymary` を入力することでログインが行えます。
 
-ブラウザでアクセスできない場合、Discord で主催者に確認してください。
+ブラウザでアクセスできない場合、Discordで主催者に確認してください。
 
 ### 4. 負荷走行を実行
 
 EC2上で、以下のコマンドを実行します。
 
 ```
-curl https://8ukqooeebg.execute-api.ap-northeast-1.amazonaws.com
+curl https://xnvvb925bl.execute-api.ap-northeast-1.amazonaws.com/
 ```
 
-数分経った後、ポータルにて、あなたのチームのスコアが反映されているか確認して下さい。
+この操作後、ポータルにて、あなたのチームのスコアが反映されているか確認して下さい。負荷走行を実行すると、あなたのアプリケーションに対して自動的にリクエストが送信され、その結果がポータルサイトのスコアに反映されます。スコアの反映には数分かかる場合があります。
 
 ### ディレクトリ構成
 
@@ -127,7 +127,7 @@ curl https://8ukqooeebg.execute-api.ap-northeast-1.amazonaws.com
 
 ### 参考実装の言語切り替え方法
 
-参考実装の言語はRuby/PHP/Goが用意されており、初期状態ではRubyの実装が起動しています。
+初期状態ではRubyによる参考実装が起動しています。これをベースに最適化を進めるか、必要に応じてPHP、Go、またはPythonの参考実装に切り替えることができます。一度に起動できるアプリケーション言語は1つだけです。基本的な切り替え手順は、現在動作しているRubyのサービス(`isu-ruby`)を停止・無効化し、その後、目的の言語のサービスを起動・有効化します。PHPへ切り替える場合、またはPHPからRubyへ戻す場合は、Nginxの設定変更も伴います。
 
 80番ポートでアクセスできるので、ブラウザから動作確認をすることができます。
 
@@ -135,7 +135,7 @@ curl https://8ukqooeebg.execute-api.ap-northeast-1.amazonaws.com
 
 エラーなどの出力については、
 
-```
+```bash
 $ sudo journalctl -f -u isu-ruby
 ```
 
@@ -143,44 +143,53 @@ $ sudo journalctl -f -u isu-ruby
 
 また、unicornの再起動は、
 
-```
+```bash
 $ sudo systemctl restart isu-ruby
 ```
 
 などですることができます。
 
-#### PHPへの切り替え方
+#### PHP (php8.3-fpm) への切り替え方
 
-起動する実装をPHPに切り替えるには、以下の操作を行います。
+Ruby実装からPHP実装に切り替えるには、以下の操作を行います。まず、Rubyサービスを停止・無効化します:
 
-```
+```bash
 $ sudo systemctl stop isu-ruby
 $ sudo systemctl disable isu-ruby
+```
+
+```bash
 $ sudo rm /etc/nginx/sites-enabled/isucon.conf
 $ sudo ln -s /etc/nginx/sites-available/isucon-php.conf /etc/nginx/sites-enabled/
 $ sudo systemctl reload nginx
+```
+
+```bash
 $ sudo systemctl start php8.3-fpm
 $ sudo systemctl enable php8.3-fpm
 ```
 
-php-fpmの設定については、/etc/php/8.3/fpm/以下にあります。
+php-fpmの設定については、`/etc/php/8.3/fpm/` 以下にあります。
 
 エラーなどの出力については、
 
-```
+```bash
 $ sudo journalctl -f -u php8.3-fpm
 $ sudo tail -f /var/log/nginx/error.log
 ```
 
 などで見ることができます。
 
-#### Goへの切り替え方
+#### Go (isu-go) への切り替え方
 
-起動する実装をGoに切り替えるには、以下の操作を行います。
+Ruby実装からGo実装に切り替えるには、以下の操作を行います。まず、Rubyサービスを停止・無効化します:
 
-```
+```bash
 $ sudo systemctl stop isu-ruby
 $ sudo systemctl disable isu-ruby
+```
+
+```bash
 $ sudo systemctl start isu-go
 $ sudo systemctl enable isu-go
 ```
@@ -189,11 +198,33 @@ $ sudo systemctl enable isu-go
 
 エラーなどの出力については、
 
-```
+```bash
 $ sudo journalctl -f -u isu-go
 ```
 
 などで見ることができます。
+
+#### Python (isu-python) への切り替え方
+
+Ruby実装からPython実装に切り替えるには、以下の操作を行います。まず、Rubyサービスを停止・無効化します:
+
+```bash
+$ sudo systemctl stop isu-ruby
+$ sudo systemctl disable isu-ruby
+```
+
+```bash
+# Python 用 systemd ユニットを有効化・起動
+$ sudo systemctl start isu-python
+$ sudo systemctl enable isu-python
+```
+
+プログラムの詳しい起動方法は、`/etc/systemd/system/isu-python.service`を参照してください。
+
+```bash
+# リアルタイムでログを追う
+$ sudo journalctl -f -u isu-python
+```
 
 ### MySQL
 
@@ -210,7 +241,7 @@ $ sudo journalctl -f -u isu-go
 
 [社内ISUCON 当日レギュレーション](/public_manual.md)
 
-なお、当日レギュレーションと本マニュアルの記述に矛盾がある場合、本マニュアルの記述が優先されます。
+本マニュアルは、競技環境の技術的な詳細と操作手順を提供します。当日レギュレーション (`public_manual.md`) には競技全体のルールが記載されています。原則として、競技ルールについては `public_manual.md` を、技術的な操作や環境については本マニュアルを参照してください。
 
 ### スコアについて
 
@@ -245,4 +276,4 @@ $ sudo journalctl -f -u isu-go
 
 ## 当日サポートについて
 
-競技中、Discord にてサポートを行います。また、現地にメンターが常駐しますのでアプリケーションチューニングに関する相談も可能です。
+にてサポートを行います。また、現地にメンターが常駐しますのでアプリケーションチューニングに関する相談も可能です。
